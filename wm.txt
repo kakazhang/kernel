@@ -1,0 +1,410 @@
+./drivers/ata/sata_via.c:	 * Rx52[2] is the internal 128DW FIFO Flow control watermark
+./drivers/ata/sata_via.c:	 * size goes below 32DW.  Setting it to 1 makes the watermark
+./drivers/video/i810/i810_main.c:  	i810_writel(FW_BLC, mmio, par->watermark); 
+./drivers/video/i810/i810_main.c:	par->watermark = i810_get_watermark(var, par);
+./drivers/video/i810/i810_gtf.c: * i810_get_watermark - gets watermark
+./drivers/video/i810/i810_gtf.c: * Gets the required watermark based on 
+./drivers/video/i810/i810_gtf.c: * watermark
+./drivers/video/i810/i810_gtf.c:u32 i810_get_watermark(const struct fb_var_screeninfo *var,
+./drivers/video/i810/i810_dvt.c:u32 i810_get_watermark(struct fb_var_screeninfo *var,
+./drivers/video/geode/lxfb_ops.c:	/* Set default watermark values */
+./drivers/video/aty/atyfb_base.c:		/* FIXME: display FIFO low watermark values */
+./drivers/video/bf54x-lq043fb.c: * Regular watermark - when FIFO is 100% full,
+./drivers/video/bf54x-lq043fb.c: * Urgent watermark - when FIFO is 75% full
+./drivers/input/misc/adxl34x.c:	.watermark = 0,
+./drivers/input/misc/adxl34x.c:	if (pdata->watermark) {
+./drivers/input/misc/adxl34x.c:			SAMPLES(pdata->watermark));
+./drivers/i2c/busses/i2c-xiic.c:	u8 rx_watermark;
+./drivers/i2c/busses/i2c-xiic.c:	rx_watermark = msg->len;
+./drivers/i2c/busses/i2c-xiic.c:	if (rx_watermark > IIC_RX_FIFO_DEPTH)
+./drivers/i2c/busses/i2c-xiic.c:		rx_watermark = IIC_RX_FIFO_DEPTH;
+./drivers/i2c/busses/i2c-xiic.c:	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
+./drivers/media/video/cx23885/cx23888-ir.c:enum tx_fifo_watermark {
+./drivers/media/video/cx23885/cx23888-ir.c:enum rx_fifo_watermark {
+./drivers/media/video/cx23885/cx23888-ir.c:static inline void control_tx_irq_watermark(struct cx23885_dev *dev,
+./drivers/media/video/cx23885/cx23888-ir.c:					    enum tx_fifo_watermark level)
+./drivers/media/video/cx23885/cx23888-ir.c:static inline void control_rx_irq_watermark(struct cx23885_dev *dev,
+./drivers/media/video/cx23885/cx23888-ir.c:					    enum rx_fifo_watermark level)
+./drivers/media/video/cx23885/cx23888-ir.c:		 * Check the watermark threshold setting
+./drivers/media/video/cx23885/cx23888-ir.c:		 * watermark when we receive the RTO.
+./drivers/media/video/cx23885/cx23888-ir.c:	control_rx_irq_watermark(dev, RX_FIFO_HALF_FULL);
+./drivers/media/video/cx23885/cx23888-ir.c:	control_tx_irq_watermark(dev, TX_FIFO_HALF_EMPTY);
+./drivers/media/video/cx23885/cx23888-ir.c:	v4l2_info(sd, "\tFIFO interrupt watermark:          %s\n",
+./drivers/media/video/cx23885/cx23888-ir.c:	v4l2_info(sd, "\tFIFO interrupt watermark:          %s\n",
+./drivers/media/video/cx25840/cx25840-ir.c:enum tx_fifo_watermark {
+./drivers/media/video/cx25840/cx25840-ir.c:enum rx_fifo_watermark {
+./drivers/media/video/cx25840/cx25840-ir.c:static inline void control_tx_irq_watermark(struct i2c_client *c,
+./drivers/media/video/cx25840/cx25840-ir.c:					    enum tx_fifo_watermark level)
+./drivers/media/video/cx25840/cx25840-ir.c:static inline void control_rx_irq_watermark(struct i2c_client *c,
+./drivers/media/video/cx25840/cx25840-ir.c:					    enum rx_fifo_watermark level)
+./drivers/media/video/cx25840/cx25840-ir.c:		 * Check the watermark threshold setting
+./drivers/media/video/cx25840/cx25840-ir.c:		 * watermark when we receive the RTO.
+./drivers/media/video/cx25840/cx25840-ir.c:	control_rx_irq_watermark(c, RX_FIFO_HALF_FULL);
+./drivers/media/video/cx25840/cx25840-ir.c:	control_tx_irq_watermark(c, TX_FIFO_HALF_EMPTY);
+./drivers/media/video/cx25840/cx25840-ir.c:	v4l2_info(sd, "\tFIFO interrupt watermark:          %s\n",
+./drivers/media/video/cx25840/cx25840-ir.c:	v4l2_info(sd, "\tFIFO interrupt watermark:          %s\n",
+./drivers/isdn/i4l/isdn_ppp.c:		 * below low watermark and set start to the next frag or
+./drivers/isdn/i4l/isdn_ppp.c:				 * and we below the low watermark 
+./drivers/isdn/i4l/isdn_ppp.c:			 	 * discard all the frames below low watermark 
+./drivers/block/drbd/drbd_nl.c:	new_conf->unplug_watermark = DRBD_UNPLUG_WATERMARK_DEF;
+./drivers/s390/net/qeth_core_main.c:	{"tx pk watermark low"},
+./drivers/s390/net/qeth_core_main.c:	{"tx pk watermark high"},
+./drivers/net/spider_net.c:spider_net_set_low_watermark(struct spider_net_card *card)
+./drivers/net/spider_net.c:	/* Set low-watermark 3/4th's of the way into the queue. */
+./drivers/net/spider_net.c:	/* Set the new watermark, clear the old watermark */
+./drivers/net/spider_net.c:	if (card->low_watermark && card->low_watermark != descr) {
+./drivers/net/spider_net.c:		hwdescr = card->low_watermark->hwdescr;
+./drivers/net/spider_net.c:	card->low_watermark = descr;
+./drivers/net/spider_net.c:	cnt = spider_net_set_low_watermark(card);
+./drivers/net/spider_net.c:	card->low_watermark = NULL;
+./drivers/net/bcm63xx_enet.c:	/* set correct transmit fifo watermark */
+./drivers/net/sky2.c:		/* disable dynamic watermark */
+./drivers/net/sky2.c:	/* On PCI express lowering the watermark gives better performance */
+./drivers/net/sky2.c:	/* set Status-FIFO ISR watermark */
+./drivers/net/ni65.c:	writereg( (csr80 & 0x3fff) ,80); /* FIFO watermarks */
+./drivers/net/tg3.c:		/* DMA read watermark not used on PCIE */
+./drivers/net/atl1c/atl1c_main.c:		AT_WRITE_REG(hw, REG_TXF_WATER_MARK, 0);	/* TX watermark, to enter l1 state.*/
+./drivers/net/wan/ixp4xx_hss.c:		start = qmgr_stat_below_low_watermark(port->plat->txreadyq);
+./drivers/net/wan/ixp4xx_hss.c:	if (qmgr_stat_below_low_watermark(txreadyq)) { /* empty */
+./drivers/net/wan/ixp4xx_hss.c:		if (!qmgr_stat_below_low_watermark(txreadyq)) {
+./drivers/net/arm/ixp4xx_eth.c:			if (!qmgr_stat_below_low_watermark(rxq) &&
+./drivers/net/arm/ixp4xx_eth.c:		start = qmgr_stat_below_low_watermark(port->plat->txreadyq);
+./drivers/net/arm/ixp4xx_eth.c:	if (qmgr_stat_below_low_watermark(txreadyq)) { /* empty */
+./drivers/net/arm/ixp4xx_eth.c:		if (!qmgr_stat_below_low_watermark(txreadyq)) {
+./drivers/net/e1000e/ethtool.c:			e1000e_set_fc_watermarks(hw);
+./drivers/net/e1000e/lib.c:	return e1000e_set_fc_watermarks(hw);
+./drivers/net/e1000e/lib.c: *  e1000e_set_fc_watermarks - Set flow control high/low watermarks
+./drivers/net/e1000e/lib.c: *  Sets the flow control high/low threshold (watermark) registers.  If
+./drivers/net/e1000e/lib.c:s32 e1000e_set_fc_watermarks(struct e1000_hw *hw)
+./drivers/net/e1000e/ich8lan.c:	return e1000e_set_fc_watermarks(hw);
+./drivers/net/octeon/octeon_mgmt.c:	/* MII CB-request FIFO programmable high watermark */
+./drivers/net/mlx4/srq.c:	__be16			limit_watermark;
+./drivers/net/mlx4/srq.c:static int mlx4_ARM_SRQ(struct mlx4_dev *dev, int srq_num, int limit_watermark)
+./drivers/net/mlx4/srq.c:	return mlx4_cmd(dev, limit_watermark, srq_num, 0, MLX4_CMD_ARM_SRQ,
+./drivers/net/mlx4/srq.c:int mlx4_srq_arm(struct mlx4_dev *dev, struct mlx4_srq *srq, int limit_watermark)
+./drivers/net/mlx4/srq.c:	return mlx4_ARM_SRQ(dev, srq->srqn, limit_watermark);
+./drivers/net/mlx4/srq.c:int mlx4_srq_query(struct mlx4_dev *dev, struct mlx4_srq *srq, int *limit_watermark)
+./drivers/net/mlx4/srq.c:	*limit_watermark = be16_to_cpu(srq_context->limit_watermark);
+./drivers/net/ioc3-eth.c:	ioc3_w_ercsr(15);			/* RX low watermark  */
+./drivers/net/ks8842.c:	/* RX 2 kb high watermark */
+./drivers/net/ks8842.c:	/* set high watermark to 3K */
+./drivers/net/ks8842.c:	/* set high watermark to 2K */
+./drivers/net/sfc/rx.c: *     size, so the watermarks should be ~rxd_size.
+./drivers/net/sfc/rx.c: *     so the watermarks should reflect this.
+./drivers/net/sfc/nic.c:	/* Set RX descriptor cache size.  Set low watermark to size-8, as
+./drivers/net/sb1250-mac.c:	 * watermark on the transmit queue.
+./drivers/net/cxgb3/xgmac.c:	 * Adjust the PAUSE frame watermarks.  We always set the LWM, and the
+./drivers/net/igb/e1000_mac.c:static s32 igb_set_fc_watermarks(struct e1000_hw *hw);
+./drivers/net/igb/e1000_mac.c:	ret_val = igb_set_fc_watermarks(hw);
+./drivers/net/igb/e1000_mac.c: *  igb_set_fc_watermarks - Set flow control high/low watermarks
+./drivers/net/igb/e1000_mac.c: *  Sets the flow control high/low threshold (watermark) registers.  If
+./drivers/net/igb/e1000_mac.c:static s32 igb_set_fc_watermarks(struct e1000_hw *hw)
+./drivers/net/wireless/bcmdhd/dhd_sdio.c:static const uint watermark = 8;
+./drivers/net/wireless/bcmdhd/dhd_sdio.c:		bcmsdh_cfg_write(bus->sdh, SDIO_FUNC_1, SBSDIO_WATERMARK, (uint8)watermark, &err);
+./drivers/net/wireless/wl12xx/ps.c:	wl1271_handle_tx_low_watermark(wl);
+./drivers/net/wireless/wl12xx/tx.c:void wl1271_handle_tx_low_watermark(struct wl1271 *wl)
+./drivers/net/wireless/wl12xx/tx.c:		wl1271_handle_tx_low_watermark(wl);
+./drivers/net/wireless/wl12xx/tx.c:	wl1271_handle_tx_low_watermark(wl);
+./drivers/net/wireless/wl12xx/tx.c:		wl1271_handle_tx_low_watermark(wl);
+./drivers/net/wireless/bcm4329/dhd_sdio.c:static const uint watermark = 8;
+./drivers/net/wireless/bcm4329/dhd_sdio.c:		bcmsdh_cfg_write(bus->sdh, SDIO_FUNC_1, SBSDIO_WATERMARK, (uint8)watermark, &err);
+./drivers/net/skge.c:	u32 watermark = 0x600;
+./drivers/net/skge.c:		watermark /= 2;
+./drivers/net/skge.c:	skge_write32(hw, Q_ADDR(q, Q_F), watermark);
+./drivers/tty/n_tty.c: * This defines the low- and high-watermarks for throttling and
+./drivers/tty/n_tty.c: * unthrottling the TTY driver.  These watermarks are used for
+./drivers/tty/serial/tegra_hsuart.c:	 *  Rx high watermark is set to 4.
+./drivers/tty/serial/tegra_hsuart.c:	 * low watermark.
+./drivers/tty/serial/tegra_hsuart.c:	 *  Tx low watermark is set to 8.
+./drivers/tty/serial/msm_serial.c:	unsigned int baud_code, rxstale, watermark;
+./drivers/tty/serial/msm_serial.c:	/* RX stale watermark */
+./drivers/tty/serial/msm_serial.c:	watermark = UART_IPR_STALE_LSB & rxstale;
+./drivers/tty/serial/msm_serial.c:	watermark |= UART_IPR_RXSTALE_LAST;
+./drivers/tty/serial/msm_serial.c:	watermark |= UART_IPR_STALE_TIMEOUT_MSB & (rxstale << 2);
+./drivers/tty/serial/msm_serial.c:	msm_write(port, watermark, UART_IPR);
+./drivers/tty/serial/msm_serial.c:	/* set RX watermark */
+./drivers/tty/serial/msm_serial.c:	watermark = (port->fifosize * 3) / 4;
+./drivers/tty/serial/msm_serial.c:	msm_write(port, watermark, UART_RFWR);
+./drivers/tty/serial/msm_serial.c:	/* set TX watermark */
+./drivers/tty/serial/jsm/jsm_neo.c:	/* Turn on table D, with 8 char hi/low watermarks */
+./drivers/tty/serial/jsm/jsm_neo.c:	ch->ch_r_watermark = 4;
+./drivers/tty/serial/jsm/jsm_neo.c:	ch->ch_r_watermark = 4;
+./drivers/tty/serial/jsm/jsm_neo.c:	/* Turn on table D, with 8 char hi/low watermarks */
+./drivers/tty/serial/jsm/jsm_neo.c:	/* Turn on table D, with 8 char hi/low watermarks */
+./drivers/tty/serial/jsm/jsm_neo.c:	ch->ch_r_watermark = 0;
+./drivers/tty/serial/jsm/jsm_neo.c:	/* Turn on table D, with 8 char hi/low watermarks */
+./drivers/tty/serial/jsm/jsm_neo.c:	ch->ch_r_watermark = 0;
+./drivers/gpu/drm/radeon/radeon_display.c:	/* adjustment options for the display watermarks */
+./drivers/gpu/drm/radeon/rv515.c:struct rv515_watermark {
+./drivers/gpu/drm/radeon/rv515.c:				  struct rv515_watermark *wm)
+./drivers/gpu/drm/radeon/rv515.c:	struct rv515_watermark wm0;
+./drivers/gpu/drm/radeon/rv515.c:	struct rv515_watermark wm1;
+./drivers/gpu/drm/radeon/radeon_pm.c:	/* update display watermarks based on new power state */
+./drivers/gpu/drm/radeon/rs690.c:struct rs690_watermark {
+./drivers/gpu/drm/radeon/rs690.c:				  struct rs690_watermark *wm)
+./drivers/gpu/drm/radeon/rs690.c:	struct rs690_watermark wm0;
+./drivers/gpu/drm/radeon/rs690.c:	struct rs690_watermark wm1;
+./drivers/gpu/drm/radeon/evergreen.c:/* watermark setup */
+./drivers/gpu/drm/radeon/evergreen.c:static u32 evergreen_latency_watermark(struct evergreen_wm_params *wm)
+./drivers/gpu/drm/radeon/evergreen.c:	if (evergreen_latency_watermark(wm) <= latency_hiding)
+./drivers/gpu/drm/radeon/evergreen.c:static void evergreen_program_watermarks(struct radeon_device *rdev,
+./drivers/gpu/drm/radeon/evergreen.c:	u32 latency_watermark_a = 0, latency_watermark_b = 0;
+./drivers/gpu/drm/radeon/evergreen.c:		latency_watermark_a = min(evergreen_latency_watermark(&wm), (u32)65535);
+./drivers/gpu/drm/radeon/evergreen.c:		latency_watermark_b = min(evergreen_latency_watermark(&wm), (u32)65535);
+./drivers/gpu/drm/radeon/evergreen.c:		c.full = dfixed_const(latency_watermark_a);
+./drivers/gpu/drm/radeon/evergreen.c:		c.full = dfixed_const(latency_watermark_b);
+./drivers/gpu/drm/radeon/evergreen.c:	       (LATENCY_LOW_WATERMARK(latency_watermark_a) |
+./drivers/gpu/drm/radeon/evergreen.c:	       (LATENCY_LOW_WATERMARK(latency_watermark_b) |
+./drivers/gpu/drm/radeon/evergreen.c:		evergreen_program_watermarks(rdev, rdev->mode_info.crtcs[i], lb_size, num_heads);
+./drivers/gpu/drm/radeon/evergreen.c:		evergreen_program_watermarks(rdev, rdev->mode_info.crtcs[i+1], lb_size, num_heads);
+./drivers/gpu/drm/r128/r128_cce.c:	/* Set watermark control */
+./drivers/gpu/drm/nouveau/nouveau_calc.c:	/* FIFO low watermark */
+./drivers/gpu/drm/i915/intel_display.c:static void intel_update_watermarks(struct drm_device *dev);
+./drivers/gpu/drm/i915/intel_display.c:	unsigned long stall_watermark = 200;
+./drivers/gpu/drm/i915/intel_display.c:		   (stall_watermark << DPFC_RECOMP_STALL_WM_SHIFT) |
+./drivers/gpu/drm/i915/intel_display.c:	unsigned long stall_watermark = 200;
+./drivers/gpu/drm/i915/intel_display.c:		   (stall_watermark << DPFC_RECOMP_STALL_WM_SHIFT) |
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c: * watermarks, FBC configuration, making sure PLLs are programmed correctly,
+./drivers/gpu/drm/i915/intel_display.c:struct intel_watermark_params {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params pineview_display_wm = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params pineview_display_hplloff_wm = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params pineview_cursor_wm = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params pineview_cursor_hplloff_wm = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params g4x_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params g4x_cursor_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params i965_cursor_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params i945_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params i915_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params i855_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params i830_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params ironlake_display_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params ironlake_cursor_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params ironlake_display_srwm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params ironlake_cursor_srwm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params sandybridge_display_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params sandybridge_cursor_wm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params sandybridge_display_srwm_info = {
+./drivers/gpu/drm/i915/intel_display.c:static const struct intel_watermark_params sandybridge_cursor_srwm_info = {
+./drivers/gpu/drm/i915/intel_display.c: * intel_calculate_wm - calculate watermark level
+./drivers/gpu/drm/i915/intel_display.c: * Calculate the watermark level (the level at which the display plane will
+./drivers/gpu/drm/i915/intel_display.c: * in the correct intel_watermark_params structure.
+./drivers/gpu/drm/i915/intel_display.c: * on the pixel size.  When it reaches the watermark level, it'll start
+./drivers/gpu/drm/i915/intel_display.c: * past the watermark point.  If the FIFO drains completely, a FIFO underrun
+./drivers/gpu/drm/i915/intel_display.c:					const struct intel_watermark_params *wm,
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("FIFO watermark level: %ld\n", wm_size);
+./drivers/gpu/drm/i915/intel_display.c:			    const struct intel_watermark_params *display,
+./drivers/gpu/drm/i915/intel_display.c:			    const struct intel_watermark_params *cursor,
+./drivers/gpu/drm/i915/intel_display.c:	/* Use the small buffer method to calculate plane watermark */
+./drivers/gpu/drm/i915/intel_display.c:	/* Use the large buffer method to calculate cursor watermark */
+./drivers/gpu/drm/i915/intel_display.c: * If any calculated watermark values is larger than the maximum value that
+./drivers/gpu/drm/i915/intel_display.c: * can be programmed into the associated watermark register, that watermark
+./drivers/gpu/drm/i915/intel_display.c:			   const struct intel_watermark_params *display,
+./drivers/gpu/drm/i915/intel_display.c:			   const struct intel_watermark_params *cursor)
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("SR watermark: display plane %d, cursor %d\n",
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("display watermark is too large(%d/%ld), disabling\n",
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("cursor watermark is too large(%d/%ld), disabling\n",
+./drivers/gpu/drm/i915/intel_display.c:			     const struct intel_watermark_params *display,
+./drivers/gpu/drm/i915/intel_display.c:			     const struct intel_watermark_params *cursor,
+./drivers/gpu/drm/i915/intel_display.c:	/* calculate the self-refresh watermark for display cursor */
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("Setting FIFO watermarks - A: plane=%d, cursor=%d, B: plane=%d, cursor=%d, SR: plane=%d, cursor=%d\n",
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("self-refresh watermark: display plane %d "
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("Setting FIFO watermarks - A: 8, B: 8, C: 8, SR %d\n",
+./drivers/gpu/drm/i915/intel_display.c:	/* update cursor SR watermark */
+./drivers/gpu/drm/i915/intel_display.c:	const struct intel_watermark_params *wm_info;
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("FIFO watermarks - A: %d, B: %d\n", planea_wm, planeb_wm);
+./drivers/gpu/drm/i915/intel_display.c:	/* Play safe and disable self-refresh before adjusting watermarks. */
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("Setting FIFO watermarks - A: %d, B: %d, C: %d, SR %d\n",
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("Setting FIFO watermarks - A: %d\n", planea_wm);
+./drivers/gpu/drm/i915/intel_display.c: * If any calculated watermark values is larger than the maximum value that
+./drivers/gpu/drm/i915/intel_display.c: * can be programmed into the associated watermark register, that watermark
+./drivers/gpu/drm/i915/intel_display.c:				const struct intel_watermark_params *display,
+./drivers/gpu/drm/i915/intel_display.c:				const struct intel_watermark_params *cursor)
+./drivers/gpu/drm/i915/intel_display.c:	DRM_DEBUG_KMS("watermark %d: display plane %d, fbc lines %d,"
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("fbc watermark(%d) is too large(%d), disabling wm%d+\n",
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("display watermark(%d) is too large(%d), disabling wm%d+\n",
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("cursor watermark(%d) is too large(%d), disabling wm%d+\n",
+./drivers/gpu/drm/i915/intel_display.c: * Compute watermark values of WM[1-3],
+./drivers/gpu/drm/i915/intel_display.c:				  const struct intel_watermark_params *display,
+./drivers/gpu/drm/i915/intel_display.c:				  const struct intel_watermark_params *cursor,
+./drivers/gpu/drm/i915/intel_display.c:	/* calculate the self-refresh watermark for display cursor */
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("FIFO watermarks For pipe A -"
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("FIFO watermarks For pipe B -"
+./drivers/gpu/drm/i915/intel_display.c:	 * Calculate and update the self-refresh watermark only when one
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("FIFO watermarks For pipe A -"
+./drivers/gpu/drm/i915/intel_display.c:		DRM_DEBUG_KMS("FIFO watermarks For pipe B -"
+./drivers/gpu/drm/i915/intel_display.c:	 * Calculate and update the self-refresh watermark only when one
+./drivers/gpu/drm/i915/intel_display.c:	 * SNB support 3 levels of watermark.
+./drivers/gpu/drm/i915/intel_display.c:	 * WM1/WM2/WM2 watermarks have to be enabled in the ascending order,
+./drivers/gpu/drm/i915/intel_display.c: * intel_update_watermarks - update FIFO watermark values based on current modes
+./drivers/gpu/drm/i915/intel_display.c: * Calculate watermark values for the various WM regs based on current mode
+./drivers/gpu/drm/i915/intel_display.c: *     watermark = dotclock * bytes per pixel * latency
+./drivers/gpu/drm/i915/intel_display.c: *     watermark = (trunc(latency/line time)+1) * surface width *
+./drivers/gpu/drm/i915/intel_display.c: * to set the non-SR watermarks to 8.
+./drivers/gpu/drm/i915/intel_display.c:static void intel_update_watermarks(struct drm_device *dev)
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c:	intel_update_watermarks(dev);
+./drivers/gpu/drm/i915/intel_display.c:	/* For FIFO watermark updates */
+./drivers/gpu/drm/i915/intel_display.c:			/* Disable CxSR and never update its watermark again */
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:            int              watermark;
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:                watermark = pProt->HCIConfig.ACLRecvBufferWaterMark;
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:                watermark = pProt->HCIConfig.EventRecvBufferWaterMark;     
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:            if (HTC_PACKET_QUEUE_DEPTH(pQueue) < watermark) {
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:                    ("** HCI pkt type: %d watermark hit (%d) current:%d \n", 
+./drivers/staging/ath6kl/htc2/AR6000/ar6k_gmbox_hciuart.c:                    pktType, watermark, HTC_PACKET_QUEUE_DEPTH(pQueue)));
+./drivers/staging/ath6kl/htc2/htc_recv.c:        /* see if endpoint is using a refill watermark 
+./drivers/staging/gma500/mrst_device.c:	/* Display arbitration control + watermarks */
+./drivers/staging/gma500/mrst_device.c:	/* Display arbitration + watermarks */
+./drivers/staging/gma500/psb_device.c:	/* Display arbitration control + watermarks */
+./drivers/staging/gma500/psb_device.c:	/* Display arbitration + watermarks */
+./drivers/staging/brcm80211/brcmsmac/main.c:		 * Have enough room for control packets along with HI watermark
+./drivers/staging/brcm80211/brcmsmac/main.c:		 * leave PS mode. The watermark for flowcontrol to OS packets
+./drivers/staging/brcm80211/brcmfmac/dhd_sdio.c:	u8 pcmciawatermark;		/* rev8 */
+./drivers/staging/brcm80211/brcmfmac/dhd_sdio.c:static const uint watermark = 8;
+./drivers/staging/brcm80211/brcmfmac/dhd_sdio.c:				 (u8) watermark, &err);
+./drivers/staging/ft1000/ft1000-pcmcia/ft1000_hw.c:		// set watermark to -1 in order to not generate an interrrupt
+./drivers/staging/ft1000/ft1000-pcmcia/ft1000_hw.c:		// set watermark to -1 in order to not generate an interrrupt
+./drivers/staging/ft1000/ft1000-usb/ft1000_hw.c:	/* set watermark to -1 in order to not generate an interrrupt */
+./drivers/infiniband/core/fmr_pool.c:	int                       dirty_watermark;
+./drivers/infiniband/core/fmr_pool.c:	pool->dirty_watermark = params->dirty_watermark;
+./drivers/infiniband/core/fmr_pool.c:			if (++pool->dirty_len >= pool->dirty_watermark) {
+./drivers/infiniband/ulp/srp/ib_srp.c:		fmr_param.dirty_watermark   = SRP_FMR_DIRTY_SIZE;
+./drivers/infiniband/ulp/iser/iser_verbs.c:	 * the ML is expected to queue, watermark for unmap at 50%  */
+./drivers/infiniband/ulp/iser/iser_verbs.c:	params.dirty_watermark	 = ISCSI_DEF_XMIT_CMDS_MAX;
+./drivers/infiniband/hw/mlx4/srq.c:	int limit_watermark;
+./drivers/infiniband/hw/mlx4/srq.c:	ret = mlx4_srq_query(dev->dev, &srq->msrq, &limit_watermark);
+./drivers/infiniband/hw/mlx4/srq.c:	srq_attr->srq_limit = limit_watermark;
+./drivers/infiniband/hw/qib/qib_iba7220.c:	/* flowcontrolwatermark is in units of KBytes */
+./drivers/infiniband/hw/qib/qib_iba7220.c:	 * watermark value, so that in theory senders always get a flow
+./drivers/infiniband/hw/qib/qib_iba6120.c:	/* flowcontrolwatermark is in units of KBytes */
+./drivers/infiniband/hw/qib/qib_iba6120.c:	 * watermark value, so that in theory senders always get a flow
+./drivers/infiniband/hw/qib/qib_iba7322.c:	/* flowcontrolwatermark is in units of KBytes */
+./drivers/infiniband/hw/ipath/ipath_init_chip.c:	/* flowcontrolwatermark is in units of KBytes */
+./drivers/infiniband/hw/ipath/ipath_init_chip.c:	 * watermark value, so that in theory senders always get a flow
+./drivers/infiniband/hw/mthca/mthca_srq.c:	__be16 limit_watermark;
+./drivers/infiniband/hw/mthca/mthca_srq.c:	__be16 limit_watermark;
+./drivers/infiniband/hw/mthca/mthca_srq.c:		srq_attr->srq_limit = be16_to_cpu(arbel_ctx->limit_watermark);
+./drivers/infiniband/hw/mthca/mthca_srq.c:		srq_attr->srq_limit = be16_to_cpu(tavor_ctx->limit_watermark);
+./drivers/dma/imx-sdma.c:	u32				watermark_level;
+./drivers/dma/imx-sdma.c:	dev_dbg(sdma->dev, "wml = 0x%08x\n", sdmac->watermark_level);
+./drivers/dma/imx-sdma.c:	 * and watermark level
+./drivers/dma/imx-sdma.c:	context->gReg[7] = sdmac->watermark_level;
+./drivers/dma/imx-sdma.c:				sdmac->watermark_level |= 1 << 31;
+./drivers/dma/imx-sdma.c:				sdmac->watermark_level |= 1 << 30;
+./drivers/dma/imx-sdma.c:		sdmac->watermark_level |= sdmac->watermark_level;
+./drivers/dma/imx-sdma.c:		sdmac->watermark_level = 0; /* FIXME: M3_BASE_ADDRESS */
+./drivers/dma/imx-sdma.c:			sdmac->watermark_level = dmaengine_cfg->src_maxburst;
+./drivers/dma/imx-sdma.c:			sdmac->watermark_level = dmaengine_cfg->dst_maxburst;
+./drivers/dma/ioat/dma_v2.c: * watermark.  Called with prep_lock held
+./drivers/dma/imx-dma.c:	u32				watermark_level;
+./drivers/dma/imx-dma.c:			imxdmac->watermark_level = dmaengine_cfg->src_maxburst;
+./drivers/dma/imx-dma.c:			imxdmac->watermark_level = dmaengine_cfg->dst_maxburst;
+./drivers/dma/imx-dma.c:				imxdmac->watermark_level * imxdmac->word_size);
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:		       unsigned int nearly_empty_watermark,
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:		       unsigned int nearly_full_watermark,
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:			 unsigned int nearly_empty_watermark,
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:			 unsigned int nearly_full_watermark)
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:	if ((nearly_empty_watermark | nearly_full_watermark) & ~7)
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:	cfg |= nearly_empty_watermark << 26;
+./arch/arm/mach-ixp4xx/ixp4xx_qmgr.c:	cfg |= nearly_full_watermark << 29;
+./arch/arm/mach-omap2/serial.c: * properly. Note that the TX watermark initialization may not be needed
+./arch/arm/mach-omap2/serial.c: * once the 8250.c watermark handling code is merged.
+./arch/arm/mach-omap1/serial.c: * properly. Note that the TX watermark initialization may not be needed
+./arch/arm/mach-omap1/serial.c: * once the 8250.c watermark handling code is merged.
+./arch/arm/mach-omap1/serial.c:	omap_serial_outp(p, UART_OMAP_SCR, 0x08);	/* TX watermark */
+./arch/m32r/mm/discontig.c:	NODE_DATA(1)->node_zones->watermark[WMARK_MIN] = 0;
+./arch/m32r/mm/discontig.c:	NODE_DATA(1)->node_zones->watermark[WMARK_LOW] = 0;
+./arch/m32r/mm/discontig.c:	NODE_DATA(1)->node_zones->watermark[WMARK_HIGH] = 0;
+./mm/compaction.c:	unsigned long watermark;
+./mm/compaction.c:	/* Compaction run is not finished if the watermark is not met */
+./mm/compaction.c:	watermark = low_wmark_pages(zone);
+./mm/compaction.c:	watermark += (1 << cc->order);
+./mm/compaction.c:	if (!zone_watermark_ok(zone, cc->order, watermark, 0, 0))
+./mm/compaction.c:	unsigned long watermark;
+./mm/compaction.c:	watermark = low_wmark_pages(zone) + (2UL << order);
+./mm/compaction.c:	if (!zone_watermark_ok(zone, 0, watermark, 0, 0))
+./mm/compaction.c:	 * watermarks
+./mm/compaction.c:	if (fragindex == -1000 && zone_watermark_ok(zone, order, watermark,
+./mm/compaction.c:		if (zone_watermark_ok(zone, order, low_wmark_pages(zone), 0, 0))
+./mm/vmscan.c: * allocations. Only zones that meet watermarks and are in a zone allowed
+./mm/vmscan.c:	/* Check the watermark levels */
+./mm/vmscan.c:		if (!zone_watermark_ok_safe(zone, order, high_wmark_pages(zone),
+./mm/vmscan.c:		int has_under_min_watermark_zone = 0;
+./mm/vmscan.c:			if (!zone_watermark_ok_safe(zone, order,
+./mm/vmscan.c:			 * gap is either the low watermark or 1%
+./mm/vmscan.c:			if (!zone_watermark_ok_safe(zone, order,
+./mm/vmscan.c:			if (!zone_watermark_ok_safe(zone, order,
+./mm/vmscan.c:				if (!zone_watermark_ok_safe(zone, order,
+./mm/vmscan.c:					has_under_min_watermark_zone = 1;
+./mm/vmscan.c:				 * If a zone reaches its high watermark,
+./mm/vmscan.c:			if (has_under_min_watermark_zone)
+./mm/vmscan.c:			if (!zone_watermark_ok(zone, 0,
+./mm/vmscan.c:	if (zone_watermark_ok_safe(zone, order, low_wmark_pages(zone), 0, 0))
+./mm/vmstat.c:	int watermark_distance;
+./mm/vmstat.c:	watermark_distance = low_wmark_pages(zone) - min_wmark_pages(zone);
+./mm/vmstat.c:	threshold = max(1, (int)(watermark_distance / num_online_cpus()));
+./mm/vmstat.c:		 * NR_FREE_PAGES reports the low watermark is ok when in fact
+./mm/vmstat.c:		 * the min watermark could be breached by an allocation
+./mm/mmap.c:	/* Update high watermark before we lower total_vm */
+./mm/rmap.c:	/* Update high watermark before we lower rss */
+./mm/rmap.c:	/* Update high watermark before we lower rss */
+./mm/page_alloc.c:	unsigned long watermark;
+./mm/page_alloc.c:	/* Obey watermarks as if the page was being allocated */
+./mm/page_alloc.c:	watermark = low_wmark_pages(zone) + (1 << order);
+./mm/page_alloc.c:	if (!zone_watermark_ok(zone, 0, watermark, 0, 0))
+./mm/page_alloc.c:/* The ALLOC_WMARK bits are used as an index to zone->watermark */
+./mm/page_alloc.c:#define ALLOC_NO_WATERMARKS	0x04 /* don't check watermarks at all */
+./mm/page_alloc.c:/* Mask to get the watermark bits */
+./mm/page_alloc.c:static bool __zone_watermark_ok(struct zone *z, int order, unsigned long mark,
+./mm/page_alloc.c:bool zone_watermark_ok(struct zone *z, int order, unsigned long mark,
+./mm/page_alloc.c:	return __zone_watermark_ok(z, order, mark, classzone_idx, alloc_flags,
+./mm/page_alloc.c:bool zone_watermark_ok_safe(struct zone *z, int order, unsigned long mark,
+./mm/page_alloc.c:	return __zone_watermark_ok(z, order, mark, classzone_idx, alloc_flags,
+./mm/page_alloc.c: * This check -ignores- the distinction between various watermarks,
+./mm/page_alloc.c: * found to be full for any variation of these watermarks, it will
+./mm/page_alloc.c: * apply the watermarks to all zones, even it is slower to do so.
+./mm/page_alloc.c:			mark = zone->watermark[alloc_flags & ALLOC_WMARK_MASK];
+./mm/page_alloc.c:			if (zone_watermark_ok(zone, order, mark,
+./mm/page_alloc.c:				if (!zone_watermark_ok(zone, order, mark,
+./mm/page_alloc.c:	 * Go through the zonelist yet one more time, keep very high watermark
+./mm/page_alloc.c:		 * but not enough to satisfy watermarks.
+./mm/page_alloc.c: * sufficient urgency to ignore watermarks and take other desperate measures
+./mm/page_alloc.c:	 * OK, we're below the kswapd watermark and have kicked background
+./mm/page_alloc.c:	/* Allocate without watermarks if the context allows */
+./mm/page_alloc.c:	/* Avoid allocations with no watermarks from looping endlessly */
+./mm/page_alloc.c:		 * is used by this zone for memmap. This affects the watermark
+./mm/page_alloc.c: * The per-cpu batchsize and zone watermarks are determined by present_pages.
+./mm/page_alloc.c: * and other unfreeable allocations which can skew the watermarks badly. This
+./mm/page_alloc.c: * first zone (e.g., ZONE_DMA). The effect will be lower watermarks and
+./mm/page_alloc.c:			/* we treat the high watermark as reserved pages. */
+./mm/page_alloc.c: * Ensures that the watermark[min,low,high] values for each zone are set
+./mm/page_alloc.c:			zone->watermark[WMARK_MIN] = min_pages;
+./mm/page_alloc.c:			zone->watermark[WMARK_MIN] = tmp;
+./mm/page_alloc.c:		zone->watermark[WMARK_LOW]  = min_wmark_pages(zone) + (tmp >> 2);
+./mm/page_alloc.c:		zone->watermark[WMARK_HIGH] = min_wmark_pages(zone) + (tmp >> 1);
+./mm/page_alloc.c: * minimum watermarks. The lowmem reserve ratio can only make sense
+./kernel/events/core.c:		event->attr.watermark ? event->attr.wakeup_watermark : 0,
+./kernel/events/core.c:	if (!event->attr.watermark) {
+./kernel/events/ring_buffer.c:	if (head - local_read(&rb->wakeup) > rb->watermark)
+./kernel/events/ring_buffer.c:		local_add(rb->watermark, &rb->wakeup);
+./kernel/events/ring_buffer.c:ring_buffer_init(struct ring_buffer *rb, long watermark, int flags)
+./kernel/events/ring_buffer.c:	if (watermark)
+./kernel/events/ring_buffer.c:		rb->watermark = min(max_size, watermark);
+./kernel/events/ring_buffer.c:	if (!rb->watermark)
+./kernel/events/ring_buffer.c:		rb->watermark = max_size / 2;
+./kernel/events/ring_buffer.c:struct ring_buffer *rb_alloc(int nr_pages, long watermark, int cpu, int flags)
+./kernel/events/ring_buffer.c:	ring_buffer_init(rb, watermark, flags);
+./kernel/events/ring_buffer.c:struct ring_buffer *rb_alloc(int nr_pages, long watermark, int cpu, int flags)
+./kernel/events/ring_buffer.c:	ring_buffer_init(rb, watermark, flags);
+./sound/soc/fsl/fsl_ssi.c:		 * Set the watermark for transmit FIFI 0 and receive FIFO 0. We
+./sound/soc/fsl/fsl_dma.c:	 * less than or equal to the FIFO watermark.  For playback, this ensures
+./sound/soc/fsl/fsl_dma.c:	 * w = SSI watermark value (which equals f - 2)
+./sound/soc/fsl/fsl_dma.c:	 * watermark, otherwise we might write more data than the FIFO can hold.
+./sound/soc/fsl/fsl_dma.c:	 * The watermark is equal to the FIFO depth minus two.
+./sound/soc/s6000/s6000-pcm.c:			   0 /* low watermark irq descriptor threshold */,
+./sound/pci/nm256/nm256.c:/* update the watermark (current period) */
+./sound/pci/nm256/nm256.c: * update playback/capture watermarks
+./sound/pci/ice1712/ice1724.c:			/* set watermarks */
