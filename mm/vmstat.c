@@ -1202,7 +1202,7 @@ static struct notifier_block __cpuinitdata vmstat_notifier =
 #ifdef CONFIG_HAS_EARLYSUSPEND
 static struct work_struct worker;
 static struct early_suspend vmstat_suspend;
-
+volatile int isClaiming = 0;
 void do_reclaim(struct work_struct *work) {
 	pr_err("do reclaim\n");
 	gfp_t mask = GFP_USER;
@@ -1213,7 +1213,7 @@ void do_reclaim(struct work_struct *work) {
 	pg_data_t *pd = first_online_pgdat();
 	struct zone* z = &(pd->node_zones[ZONE_NORMAL]);
 
-	for (od = MAX_ORDER-1; od >= 0; od--) {
+	for (od = 0; od < MAX_ORDER; od++) {
 		unsigned long free_count = 0;
 		area = &(z->free_area[od]);
 
@@ -1221,17 +1221,19 @@ void do_reclaim(struct work_struct *work) {
 			free_count++;
 
 		if (free_count > 0)
-			break;
+			zone_reclaim(z, mask, od);
 	}
 
-	if (od < MAX_ORDER)
-		zone_reclaim(z, mask, od);
+    isClaiming = 0;
 }
 
 void vmstat_early_suspend(struct early_suspend *h)
 {
     pr_err("vmstat early suspend\n");
-	schedule_work(&worker);
+	if (!isClaiming) {
+        isClaiming = 1;
+		schedule_work(&worker);
+	}
 }
 
 void vmstat_early_resume(struct early_suspend *h)
