@@ -705,6 +705,7 @@ const char * const vmstat_text[] = {
 	"nr_unstable",
 	"nr_bounce",
 	"nr_vmscan_write",
+	"nr_vmscan_write_skip",
 	"nr_writeback_temp",
 	"nr_isolated_anon",
 	"nr_isolated_file",
@@ -1205,7 +1206,7 @@ static struct early_suspend vmstat_suspend;
 volatile int isClaiming = 0;
 void do_reclaim(struct work_struct *work) {
 	pr_err("do reclaim\n");
-	gfp_t mask = GFP_USER;
+	//gfp_t masks[2] = {GFP_USER, GFP_KERNEL};
 	int od;
 	struct list_head *curr;
 	struct free_area *area;
@@ -1220,8 +1221,10 @@ void do_reclaim(struct work_struct *work) {
 		list_for_each(curr, &area->free_list[ZONE_NORMAL])
 			free_count++;
 
-		if (free_count > 0)
-			zone_reclaim(z, mask, od);
+		if (free_count > 0) {
+			zone_reclaim(z, GFP_USER, od);
+			zone_reclaim(z, GFP_KERNEL, od);
+		}
 	}
 
     isClaiming = 0;
