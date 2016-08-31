@@ -1588,6 +1588,22 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
 		area->pages[i] = page;
 	}
 
+    /**
+    * though vmalloc has gfp_mask(__GFP_KERNEL|__GFP_HIGHMEM),
+    * there are callbacks of __vmalloc, which may has gfp_mask with GFP_IO
+    * and will block or meet deadlock
+    */
+	if (unlikely(!(gfp_mask & __GFP_IO))) {
+		unsigned flags = memalloc_noio_save();
+
+		if (map_vm_area(area, prot, &pages)) {
+			memalloc_noio_restore(flags);
+			goto fail;
+		}
+		memalloc_noio_restore(flags);
+		return area->addr;
+	}
+	
 	if (map_vm_area(area, prot, &pages))
 		goto fail;
 	return area->addr;
