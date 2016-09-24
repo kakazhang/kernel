@@ -10,6 +10,9 @@
  */
 
 #include <linux/proc_fs.h>
+#define RECLAIM_FILE 1
+#define RECLAIM_ANON 2 
+#define RECLAIM_ALL 3
 
 extern struct proc_dir_entry proc_root;
 #ifdef CONFIG_PROC_SYSCTL
@@ -144,4 +147,5 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr);
 
 extern const struct inode_operations proc_ns_dir_inode_operations;
 extern const struct file_operations proc_ns_dir_operations;
+extern const struct file_operations proc_reclaim_operations;
 
