@@ -1010,6 +1010,56 @@ keep_lumpy:
 	return nr_reclaimed;
 }
 
+unsigned long reclaim_pages_from_list(struct list_head *page_list)
+{
+	struct scan_control sc = {
+		.gfp_mask = GFP_KERNEL,
+		.may_writepage = 1,
+		.may_unmap = 1,
+		.may_swap = 1,
+	};
+
+    LIST_HEAD(high_list);
+    LIST_HEAD(normal_list);
+
+	unsigned long nr_reclaimed = 0;
+    struct zone* zone_normal = NULL;
+	struct zone* zone_highmem = NULL;
+	
+	struct page *page;
+	list_for_each_entry(page, page_list, lru)
+		ClearPageActive(page);
+	
+	while(!list_empty(page_list)) {
+		page = lru_to_page(page_list);
+		list_del(&page->lru);
+		
+        struct zone* z = page_zone(page);
+		if (!strcmp(z->name, "HighMem")) {
+			list_add(&page->lru, &high_list);
+			zone_highmem = z;
+		} else if (!strcmp(z->name, "Normal")) {
+		    zone_normal = z;
+			list_add(&page->lru, &normal_list);
+		}
+		
+		if (zone_highmem)
+			nr_reclaimed += shrink_page_list(&high_list, zone_highmem, &sc);
+		if (zone_normal)
+			nr_reclaimed += shrink_page_list(&normal_list, zone_normal, &sc);
+	}
+
+	while (!list_empty(page_list)) {
+		page = lru_to_page(page_list);
+		list_del(&page->lru);
+
+		dec_zone_page_state(page, NR_ISOLATED_ANON + page_is_file_cache(page));
+		putback_lru_page(page);
+	}
+
+	return nr_reclaimed;
+}
+
 /*
  * Attempt to remove the specified page from its LRU.  Only take this page
  * if it is of the appropriate PageActive status.  Pages which are being
