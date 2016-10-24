@@ -1032,6 +1032,11 @@ static inline int vma_growsup(struct vm_area_struct *vma, unsigned long addr)
 	return vma && (vma->vm_start == addr) && (vma->vm_flags & VM_GROWSUP);
 }
 
+static inline bool vma_is_anonymous(struct vm_area_struct *vma)
+{
+    return !vma->vm_ops;
+}
+
 static inline int stack_guard_page_end(struct vm_area_struct *vma,
 					   unsigned long addr)
 {

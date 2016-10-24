@@ -306,6 +306,104 @@ const struct file_operations proc_maps_operations = {
 	.release	= seq_release_private,
 };
 
+static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end, 
+	struct mm_walk *walk) {
+    struct page* page;
+	struct mm_struct *mm = walk->mm;
+	struct vm_area_struct *vm = walk->private;
+	pte_t *orig_pte, *pte, ptent; 
+	spinlock_t *ptl;
+
+    //get pte with mm, pmd and addr
+	orig_pte = pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
+	for (; addr != end; addr += PAGE_SIZE) {
+        ptent = *pte;
+		if (!pte_present(ptent)) 
+			continue;
+
+		page = vm_normal_page(vm, addr, ptent);
+		if (!page)
+			continue;
+
+		pr_err("struct page @ %p\n", page);
+	}
+	
+	pte_unmap_unlock(orig_pte, ptl); 
+	return 0;
+}
+
+
+ssize_t reclaim_read(struct file *fp, char __user *buf, size_t count, loff_t *ppos) {
+	char buffer[24];
+	size_t len;
+	
+	len = snprintf(buffer, sizeof(buffer), "%s\n", "kaka is back");
+	return simple_read_from_buffer(buf, count, ppos, buffer, len);
+}
+
+ssize_t reclaim_write(struct file *fp, const char __user *buf, size_t count, loff_t *ppos) {
+	struct inode *inode = fp->f_path.dentry->d_inode;
+	struct task_struct *p;
+	struct mm_struct *mm;
+	char buffer[9];
+	int itype;
+    int rv;
+
+    struct vm_area_struct *vm;
+
+	memset(buffer, 0, sizeof(buffer));
+	if (count > sizeof(buffer) - 1)
+		count = sizeof(buffer) - 1;
+	if (copy_from_user(buffer, buf, count))
+		return -EFAULT;
+	
+    rv = kstrtoint(strstrip(buffer), 10, &itype);
+	if (rv < 0) 
+		return rv;
+	
+	if (itype < RECLAIM_FILE || itype > RECLAIM_ALL) 
+		 return -EINVAL; 
+
+	p = get_proc_task(inode);
+	if (!p)
+		return -ESRCH;
+	
+    mm = get_task_mm(p);
+	if (!mm) {
+		put_task_struct(p);
+		return -ENOENT;
+	}
+
+	down_read(&mm->mmap_sem);
+	struct mm_walk reclaim_walk = {
+        .mm = mm,
+		.pmd_entry = reclaim_pte_page,
+	};
+
+	if (RECLAIM_FILE == itype) {
+        for (vm=mm->mmap; vm; vm=vm->vm_next) {
+			if (is_vm_hugetlb_page(vm))
+				continue;
+            if (vma_is_anonymous(vm))
+                continue;
+
+			reclaim_walk.private = vm;
+			walk_page_range(vm->vm_start,vm->vm_end,&reclaim_walk);
+	    }
+	}
+    up_read(&mm->mmap_sem); 
+	mmput(mm);
+	put_task_struct(p);
+    
+	return count;
+}
+
+const struct file_operations proc_reclaim_operations = {
+    .read = reclaim_read,
+	.write = reclaim_write,
+	.llseek = noop_llseek,
+};
+
 /*
  * Proportional Set Size(PSS): my share of RSS.
  *
@@ -1110,4 +1208,7 @@ const struct file_operations proc_numa_maps_operations = {
 	.llseek		= seq_lseek,
 	.release	= seq_release_private,
 };
+
+
+
 #endif /* CONFIG_NUMA */
