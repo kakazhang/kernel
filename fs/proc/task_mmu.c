@@ -314,7 +314,6 @@ static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end,
 	pte_t *orig_pte, *pte, ptent; 
 	spinlock_t *ptl;
 
-
     //get pte with mm, pmd and addr
 	orig_pte = pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
 	for (; addr != end; addr += PAGE_SIZE) {
@@ -326,6 +325,9 @@ static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end,
 		if (!page)
 			continue;
 
+        if (page_mapcount(page))
+			continue;
+		
 		pr_err("struct page @ %p\n", page);
 	}
 	
