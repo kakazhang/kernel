@@ -306,6 +306,11 @@ const struct file_operations proc_maps_operations = {
 	.release	= seq_release_private,
 };
 
+static inline int is_page_file_cache(struct page *page)
+{
+	return !PageSwapBacked(page);
+}
+
 static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end, 
 	struct mm_walk *walk) {
     struct page* page;
@@ -313,7 +318,11 @@ static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end,
 	struct vm_area_struct *vm = walk->private;
 	pte_t *orig_pte, *pte, ptent; 
 	spinlock_t *ptl;
-
+	int isolate;
+    LIST_HEAD(page_list);
+	
+cont:
+	isolate = 0;
     //get pte with mm, pmd and addr
 	orig_pte = pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
 	for (; addr != end; addr += PAGE_SIZE) {
@@ -325,13 +334,29 @@ static int reclaim_pte_page(pmd_t *pmd, unsigned long addr, unsigned long end,
 		if (!page)
 			continue;
 
-        if (page_mapcount(page))
+        if (page_mapcount(page) != 1)
 			continue;
-		
+		if (isolate_lru_page(page))
+			continue;
+
+		isolate++;
+		list_add(&page->lru, &page_list);
+		inc_zone_page_state(page, NR_ISOLATED_ANON + 
+             is_page_file_cache(page));
 		pr_err("struct page @ %p\n", page);
+
+		if (isolate >= SWAP_CLUSTER_MAX)
+			break;
 	}
 	
 	pte_unmap_unlock(orig_pte, ptl); 
+	//reclaim 
+	reclaim_pages_from_list(&page_list);
+
+	if (addr != end)
+		goto cont;
+
+	cond_resched();
 	return 0;
 }
 
