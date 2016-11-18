@@ -131,3 +131,8 @@ asmlinkage long sys_arm_fadvise64_64(int fd, int advice,
 {
 	return sys_fadvise64_64(fd, offset, len, advice);
 }
+
+asmlinkage long sys_add(int a, int b) {
+	printk("%s\n", __func__);
+	return (a+b);
+}
