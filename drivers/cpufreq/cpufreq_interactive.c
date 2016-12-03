@@ -87,6 +87,8 @@ static struct cpufreq_interactive_core_lock core_lock;
 
 /* Hi speed to bump to from lo speed when load burst (default max) */
 static u64 hispeed_freq;
+/*Min speed to bump to from higher speed when load decrease*/
+static u64 minspeed_freq;
 
 /* Boost frequency by boost_factor when CPU load at or above this value. */
 #define DEFAULT_GO_MAXSPEED_LOAD 80
@@ -95,6 +97,10 @@ static unsigned long go_maxspeed_load;
 /* Go to hispeed_freq when CPU load at or above this value. */
 #define DEFAULT_GO_HISPEED_LOAD 80
 static unsigned long go_hispeed_load;
+
+/*Go to minspeed_freq when CPU load at or below this value*/
+#define DEFAULT_GO_MINSPEED_LOAD 30
+static unsigned long go_minspeed_load;
 
 /* Base of exponential raise to max speed; if 0 - jump to maximum */
 static unsigned long boost_factor;
@@ -222,6 +228,8 @@ static unsigned int cpufreq_interactive_get_target(
 		}
 	} else {
 		target_freq = pcpu->policy->max * cpu_load / 100;
+        if (cpu_load <= go_minspeed_load && pcpu->target_freq >= target_freq)
+            target_freq = minspeed_freq;
 	}
 
 done:
@@ -955,8 +963,34 @@ static ssize_t store_go_hispeed_load(struct kobject *kobj,
 	return count;
 }
 
+static ssize_t show_go_minspeed_load(struct kobject *kobj,
+				     struct attribute *attr, char *buf)
+{
+	return sprintf(buf, "%lu\n", go_minspeed_load);
+}
+
+static ssize_t store_go_minspeed_load(struct kobject *kobj,
+			struct attribute *attr, const char *buf, size_t count)
+{
+	int ret;
+	unsigned long val;
+
+	ret = strict_strtoul(buf, 0, &val);
+	if (ret < 0)
+		return ret;
+
+    if (val > DEFAULT_GO_MINSPEED_LOAD)
+        val = DEFAULT_GO_MINSPEED_LOAD;
+
+	go_minspeed_load = val;
+	return count;
+}
+
 static struct global_attr go_hispeed_load_attr = __ATTR(go_hispeed_load, 0644,
 		show_go_hispeed_load, store_go_hispeed_load);
+
+static struct global_attr go_minspeed_load_attr = __ATTR(go_minspeed_load, 0644,
+		show_go_minspeed_load, store_go_minspeed_load);
 
 static ssize_t show_min_sample_time(struct kobject *kobj,
 				struct attribute *attr, char *buf)
@@ -1082,6 +1116,7 @@ static struct attribute *interactive_attributes[] = {
 	&sustain_load_attr.attr,
 	&hispeed_freq_attr.attr,
 	&go_hispeed_load_attr.attr,
+	&go_minspeed_load_attr.attr,
 	&above_hispeed_delay.attr,
 	&min_sample_time_attr.attr,
 	&timer_rate_attr.attr,
@@ -1135,6 +1170,9 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 
 		if (!hispeed_freq)
 			hispeed_freq = policy->max;
+
+        if (!minspeed_freq)
+            minspeed_freq = policy->min;
 
 		/*
 		 * Do not register the idle hook and create sysfs
@@ -1221,6 +1259,7 @@ static int __init cpufreq_interactive_init(void)
 
 	go_maxspeed_load = DEFAULT_GO_MAXSPEED_LOAD;
 	go_hispeed_load = DEFAULT_GO_HISPEED_LOAD;
+	go_minspeed_load = DEFAULT_GO_MINSPEED_LOAD;
 	min_sample_time = DEFAULT_MIN_SAMPLE_TIME;
 	above_hispeed_delay_val = DEFAULT_ABOVE_HISPEED_DELAY;
 	timer_rate = DEFAULT_TIMER_RATE;
