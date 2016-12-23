@@ -72,6 +72,7 @@
 #include <linux/ftrace.h>
 #include <linux/slab.h>
 #include <linux/cpuacct.h>
+#include <asm/div64.h>
 
 #include <asm/tlb.h>
 #include <asm/irq_regs.h>
@@ -572,6 +573,9 @@ struct rq {
 
 #ifdef CONFIG_SMP
 	struct task_struct *wake_list;
+#endif
+#ifdef CONFIG_OP_ZONE_SCHED
+    int busy_load;
 #endif
 };
 
@@ -4096,6 +4100,72 @@ void thread_group_times(struct task_struct *p, cputime_t *ut, cputime_t *st)
 }
 #endif
 
+#ifdef CONFIG_OP_ZONE_SCHED
+static DEFINE_PER_CPU(struct per_cpu_load, per_cload);
+static unsigned long __read_mostly per_cpu_update_interval = HZ/10;
+
+static void init_pcl(void) {
+    struct per_cpu_load *pcl = &__get_cpu_var(per_cload);
+	pcl->last_system = 0;
+	pcl->last_nice = 0;
+    pcl->last_user = 0;
+	pcl->last_softirq = 0;
+	pcl->last_irq = 0;
+	pcl->last_idle = 0;
+	pcl->last_iowait = 0;
+	pcl->last_update = jiffies;
+	pcl->is_init = 0;
+}
+
+int calc_per_cpu_load(void) {
+	cputime64_t system, user, nice,softirq, irq, idle, iowait;
+	cputime64_t total, useness;
+	cputime64_t load = 0;
+	int load_type = LOAD_COLD;
+	struct per_cpu_load *pcload = &__get_cpu_var(per_cload);
+	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+	
+	system = cpustat->system;
+	user = cpustat->user;
+	nice = cpustat->nice;
+	softirq = cpustat->softirq;
+	irq = cpustat->irq;
+	idle = cpustat->idle;
+	iowait = cpustat->iowait;
+
+	if (pcload->is_init == 0) {
+		pcload->is_init = 1;
+	} else {
+		 total = (system+user+softirq+irq+idle+iowait+nice)
+		   - (pcload->last_system + pcload->last_user + pcload->last_softirq + pcload->last_irq
+		   + pcload->last_idle + pcload->last_iowait + pcload->last_nice);
+
+		 useness = (system + user + nice) - (pcload->last_system + pcload->last_user + pcload->last_nice);
+		 load = useness * 100;
+		 do_div(load, total);
+	}
+	
+	pcload->last_system  = system;
+	pcload->last_user = user;
+	pcload->last_nice = nice;
+	pcload->last_softirq = softirq;
+	pcload->last_irq = irq;
+	pcload->last_idle = idle;
+	pcload->last_iowait = iowait;
+	pcload->last_update = jiffies;
+
+	this_rq()->busy_load = load;
+	if (load < 30)
+		load_type = LOAD_COLD;
+	else if (load > 80)
+		load_type = LOAD_HOT;
+	else
+		load_type = LOAD_WARM;
+
+	return load_type;
+}
+
+#endif
 /*
  * This function gets called by the timer code, with HZ frequency.
  * We call it with interrupts disabled.
@@ -8024,7 +8094,9 @@ void __init sched_init(void)
 {
 	int i, j;
 	unsigned long alloc_size = 0, ptr;
-
+#ifdef CONFIG_OP_ZONE_SCHED
+    init_pcl();
+#endif
 #ifdef CONFIG_FAIR_GROUP_SCHED
 	alloc_size += 2 * nr_cpu_ids * sizeof(void **);
 #endif

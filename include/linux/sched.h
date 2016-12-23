@@ -94,7 +94,9 @@ struct sched_param {
 #include <linux/gfp.h>
 
 #include <asm/processor.h>
-
+#ifndef CONFIG_OP_ZONE_SCHED
+#define CONFIG_OP_ZONE_SCHED
+#endif
 struct exec_domain;
 struct futex_pi_state;
 struct robust_list_head;
@@ -1013,6 +1015,28 @@ struct sched_domain {
 	unsigned long span[0];
 };
 
+#ifdef CONFIG_OP_ZONE_SCHED
+#define LOAD_COLD 0x00
+#define LOAD_WARM 0x01
+#define LOAD_HOT 0x02
+
+struct per_cpu_load {
+	cputime64_t last_system;
+	cputime64_t last_user;
+	cputime64_t last_nice;
+	
+	cputime64_t last_softirq;
+	cputime64_t last_irq;
+	cputime64_t last_idle;
+	cputime64_t last_iowait;
+   
+	unsigned long last_update;
+	int is_init;
+};
+
+//cal cpu load
+int calc_per_cpu_load(void);
+#endif
 static inline struct cpumask *sched_domain_span(struct sched_domain *sd)
 {
 	return to_cpumask(sd->span);

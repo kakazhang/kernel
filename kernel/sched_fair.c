@@ -3906,7 +3906,9 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 	unsigned long next_balance = jiffies + 60*HZ;
 	int update_next_balance = 0;
 	int need_serialize;
-
+#ifdef CONFIG_OP_ZONE_SCHED
+    int load_type = LOAD_COLD;
+#endif
 	update_shares(cpu);
 
 	rcu_read_lock();
@@ -3930,6 +3932,14 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 		}
 
 		if (time_after_eq(jiffies, sd->last_balance + interval)) {
+#ifdef CONFIG_OP_ZONE_SCHED
+			load_type = calc_per_cpu_load();
+            if (LOAD_HOT == load_type) {
+                pr_err("cpu(%d) load is very high\n", cpu);
+				balance = 0;
+				goto out;
+			}
+#endif
 			if (load_balance(cpu, rq, sd, idle, &balance)) {
 				/*
 				 * We've pulled tasks over so either we're no
@@ -3937,7 +3947,7 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 				 */
 				idle = CPU_NOT_IDLE;
 			}
-			sd->last_balance = jiffies;
+ 			sd->last_balance = jiffies;
 		}
 		if (need_serialize)
 			spin_unlock(&balancing);
@@ -3983,7 +3993,6 @@ static void nohz_idle_balance(int this_cpu, enum cpu_idle_type idle)
 	for_each_cpu(balance_cpu, nohz.idle_cpus_mask) {
 		if (balance_cpu == this_cpu)
 			continue;
-
 		/*
 		 * If this cpu gets work to do, stop the load balancing
 		 * work being done for other cpus. Next load
@@ -4000,7 +4009,7 @@ static void nohz_idle_balance(int this_cpu, enum cpu_idle_type idle)
 		raw_spin_unlock_irq(&this_rq->lock);
 
 		rebalance_domains(balance_cpu, CPU_IDLE);
-
+		
 		rq = cpu_rq(balance_cpu);
 		if (time_after(this_rq->next_balance, rq->next_balance))
 			this_rq->next_balance = rq->next_balance;
