@@ -91,15 +91,15 @@ static u64 hispeed_freq;
 static u64 minspeed_freq;
 
 /* Boost frequency by boost_factor when CPU load at or above this value. */
-#define DEFAULT_GO_MAXSPEED_LOAD 80
+#define DEFAULT_GO_MAXSPEED_LOAD 90
 static unsigned long go_maxspeed_load;
 
 /* Go to hispeed_freq when CPU load at or above this value. */
-#define DEFAULT_GO_HISPEED_LOAD 80
+#define DEFAULT_GO_HISPEED_LOAD 90
 static unsigned long go_hispeed_load;
 
 /*Go to minspeed_freq when CPU load at or below this value*/
-#define DEFAULT_GO_MINSPEED_LOAD 10
+#define DEFAULT_GO_MINSPEED_LOAD 2
 static unsigned long go_minspeed_load;
 
 /* Base of exponential raise to max speed; if 0 - jump to maximum */
