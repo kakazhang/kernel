@@ -1,6 +1,9 @@
 #ifndef _LINUX_SCHED_H
 #define _LINUX_SCHED_H
 
+#ifndef CONFIG_DEBUG_ZONE_SCHED
+#define CONFIG_DEBUG_ZONE_SCHED
+#endif
 /*
  * cloning flags:
  */
@@ -94,9 +97,9 @@ struct sched_param {
 #include <linux/gfp.h>
 
 #include <asm/processor.h>
-#ifndef CONFIG_OP_ZONE_SCHED
-#define CONFIG_OP_ZONE_SCHED
-#endif
+//#ifndef CONFIG_OP_ZONE_SCHED
+//#define CONFIG_OP_ZONE_SCHED
+//#endif
 struct exec_domain;
 struct futex_pi_state;
 struct robust_list_head;
@@ -1015,7 +1018,7 @@ struct sched_domain {
 	unsigned long span[0];
 };
 
-#ifdef CONFIG_OP_ZONE_SCHED
+#ifdef CONFIG_DEBUG_ZONE_SCHED
 #define LOAD_COLD 0x00
 #define LOAD_WARM 0x01
 #define LOAD_HOT 0x02
@@ -1035,7 +1038,7 @@ struct per_cpu_load {
 };
 
 //cal cpu load
-int calc_per_cpu_load(void);
+void calc_per_cpu_load(void);
 #endif
 static inline struct cpumask *sched_domain_span(struct sched_domain *sd)
 {

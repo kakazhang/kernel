@@ -574,7 +574,7 @@ struct rq {
 #ifdef CONFIG_SMP
 	struct task_struct *wake_list;
 #endif
-#ifdef CONFIG_OP_ZONE_SCHED
+#ifdef CONFIG_DEBUG_ZONE_SCHED
     int busy_load;
 #endif
 };
@@ -4100,31 +4100,41 @@ void thread_group_times(struct task_struct *p, cputime_t *ut, cputime_t *st)
 }
 #endif
 
-#ifdef CONFIG_OP_ZONE_SCHED
+#ifdef CONFIG_DEBUG_ZONE_SCHED
 static DEFINE_PER_CPU(struct per_cpu_load, per_cload);
 static unsigned long __read_mostly per_cpu_update_interval = HZ/10;
 
 static void init_pcl(void) {
-    struct per_cpu_load *pcl = &__get_cpu_var(per_cload);
-	pcl->last_system = 0;
-	pcl->last_nice = 0;
-    pcl->last_user = 0;
-	pcl->last_softirq = 0;
-	pcl->last_irq = 0;
-	pcl->last_idle = 0;
-	pcl->last_iowait = 0;
-	pcl->last_update = jiffies;
-	pcl->is_init = 0;
+	int i;
+	struct per_cpu_load *pcl;
+	
+	for_each_possible_cpu(i) {
+        pcl = &per_cpu(per_cload, i);
+	    pcl->last_system = 0;
+	    pcl->last_nice = 0;
+        pcl->last_user = 0;
+	    pcl->last_softirq = 0;
+	    pcl->last_irq = 0;
+	    pcl->last_idle = 0;
+	    pcl->last_iowait = 0;
+	    pcl->last_update = jiffies;
+	    pcl->is_init = 0;
+	}
 }
 
-int calc_per_cpu_load(void) {
+void calc_per_cpu_load(void) {
 	cputime64_t system, user, nice,softirq, irq, idle, iowait;
-	cputime64_t total, useness;
-	cputime64_t load = 0;
-	int load_type = LOAD_COLD;
+	cputime64_t lsystem, luser, lnice,lsoftirq, lirq, lidle, liowait;
+	cputime64_t total, useness, ltotal, luseness;
+	cputime64_t delta_total, load = 0;
+
 	struct per_cpu_load *pcload = &__get_cpu_var(per_cload);
 	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+
+	if (time_before(jiffies, pcload->last_update + per_cpu_update_interval))
+		return;
 	
+	//current cpu state
 	system = cpustat->system;
 	user = cpustat->user;
 	nice = cpustat->nice;
@@ -4133,16 +4143,31 @@ int calc_per_cpu_load(void) {
 	idle = cpustat->idle;
 	iowait = cpustat->iowait;
 
+    //last cpu state
+    lsystem = pcload->last_system;
+	luser = pcload->last_user;
+    lnice = pcload->last_nice;
+	lsoftirq = pcload->last_softirq;
+	lirq = pcload->last_irq;
+	lidle = pcload->last_idle;
+	liowait = pcload->last_iowait;
+	
 	if (pcload->is_init == 0) {
 		pcload->is_init = 1;
 	} else {
-		 total = (system+user+softirq+irq+idle+iowait+nice)
-		   - (pcload->last_system + pcload->last_user + pcload->last_softirq + pcload->last_irq
-		   + pcload->last_idle + pcload->last_iowait + pcload->last_nice);
+         //current total cpu state and last cpu state
+		 total = system + user + nice + softirq + irq + idle + iowait;
+         ltotal = lsystem + luser + lsoftirq + lirq + lidle + liowait + lnice;
 
-		 useness = (system + user + nice) - (pcload->last_system + pcload->last_user + pcload->last_nice);
-		 load = useness * 100;
-		 do_div(load, total);
+         //current and last cpu state
+		 useness = system + user + nice;
+		 luseness = lsystem + luser + lnice;
+		 
+		 load = (useness - luseness) * 100;
+		 delta_total = total - ltotal;
+		 
+		 do_div(load, delta_total);
+		 pr_err("cpu(%d) load=%llu\n", smp_processor_id(), load);
 	}
 	
 	pcload->last_system  = system;
@@ -4155,14 +4180,6 @@ int calc_per_cpu_load(void) {
 	pcload->last_update = jiffies;
 
 	this_rq()->busy_load = load;
-	if (load < 30)
-		load_type = LOAD_COLD;
-	else if (load > 80)
-		load_type = LOAD_HOT;
-	else
-		load_type = LOAD_WARM;
-
-	return load_type;
 }
 
 #endif
@@ -4185,7 +4202,9 @@ void scheduler_tick(void)
 	raw_spin_unlock(&rq->lock);
 
 	perf_event_task_tick();
-
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+    calc_per_cpu_load();
+#endif
 #ifdef CONFIG_SMP
 	rq->idle_at_tick = idle_cpu(cpu);
 	trigger_load_balance(rq, cpu);
@@ -8094,7 +8113,7 @@ void __init sched_init(void)
 {
 	int i, j;
 	unsigned long alloc_size = 0, ptr;
-#ifdef CONFIG_OP_ZONE_SCHED
+#ifdef CONFIG_DEBUG_ZONE_SCHED
     init_pcl();
 #endif
 #ifdef CONFIG_FAIR_GROUP_SCHED

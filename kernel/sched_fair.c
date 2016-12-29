@@ -23,6 +23,7 @@
 #include <linux/latencytop.h>
 #include <linux/sched.h>
 #include <linux/cpumask.h>
+#include <asm/div64.h>
 
 /*
  * Targeted preemption latency for CPU-bound tasks:
@@ -3890,6 +3891,44 @@ static void update_max_interval(void)
 	max_load_balance_interval = HZ*num_online_cpus()/10;
 }
 
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+static int get_zone_cpu_loadavg(void) {
+	int i, local_group;
+	int busy_sg_load = 0, busy_avg = 0;
+	int nr_cpus = 0;
+	int this_cpu = smp_processor_id();
+	struct rq *rq;
+	struct sched_domain *sd;
+	struct sched_group *sg;
+	struct cpumask *cpus = __get_cpu_var(load_balance_tmpmask);
+
+	sd = cpu_rq(this_cpu)->sd;
+	sg = sd->groups;
+
+	//find which sched_group this cpu belongs to
+	do {
+		local_group = cpumask_test_cpu(this_cpu, sched_group_cpus(sg));
+		if (local_group) break;
+		
+		sg = sg->next;
+	} while (sg != sd->groups);
+
+	//for each cpu in this group, get total busy load
+	for_each_cpu_and(i, sched_group_cpus(sg), cpus) {
+		nr_cpus++;
+		rq = cpu_rq(i);
+		busy_sg_load += rq->busy_load;
+	}
+	
+    if (nr_cpus > 0) {
+       do_div(busy_sg_load, nr_cpus);
+	   busy_avg = busy_sg_load;
+    }
+	
+	return busy_avg;
+}
+#endif
+
 /*
  * It checks each scheduling domain to see if it is due to be balanced,
  * and initiates a balancing operation if so.
@@ -3906,9 +3945,7 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 	unsigned long next_balance = jiffies + 60*HZ;
 	int update_next_balance = 0;
 	int need_serialize;
-#ifdef CONFIG_OP_ZONE_SCHED
-    int load_type = LOAD_COLD;
-#endif
+
 	update_shares(cpu);
 
 	rcu_read_lock();
@@ -3932,14 +3969,14 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 		}
 
 		if (time_after_eq(jiffies, sd->last_balance + interval)) {
-#ifdef CONFIG_OP_ZONE_SCHED
-			load_type = calc_per_cpu_load();
-            if (LOAD_HOT == load_type) {
-                pr_err("cpu(%d) load is very high\n", cpu);
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+			if (get_zone_cpu_loadavg() >= 80) {
+				pr_err("cpu(%d) loadavg is high,skip\n", cpu);
 				balance = 0;
 				goto out;
 			}
 #endif
+
 			if (load_balance(cpu, rq, sd, idle, &balance)) {
 				/*
 				 * We've pulled tasks over so either we're no
