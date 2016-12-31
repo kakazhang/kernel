@@ -418,16 +418,6 @@ ssize_t reclaim_write(struct file *fp, const char __user *buf, size_t count, lof
 			reclaim_walk.private = vm;
 			walk_page_range(vm->vm_start,vm->vm_end,&reclaim_walk);
 	    }
-	} else if (RECLAIM_ANON == itype) {
-        for (vm=mm->mmap; vm; vm=vm->vm_next) {
-			if (is_vm_hugetlb_page(vm))
-				continue;
-            if (!vma_is_anonymous(vm))
-                continue;
-
-			reclaim_walk.private = vm;
-			walk_page_range(vm->vm_start,vm->vm_end,&reclaim_walk);
-	    }
 	}
     up_read(&mm->mmap_sem); 
 	mmput(mm);
