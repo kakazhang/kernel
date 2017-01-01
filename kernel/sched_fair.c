@@ -3340,6 +3340,28 @@ static int need_active_balance(struct sched_domain *sd, int idle,
 
 static int active_load_balance_cpu_stop(void *data);
 
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+static int get_sg_loadavg(struct sched_group *sg, struct cpumask* cpus) {
+    int i, nr_cpus = 0;
+	int busy_sg_load = 0, busy_avg = 0;
+	struct rq *rq;
+
+	//for each cpu in this group, get total busy load
+	for_each_cpu_and(i, sched_group_cpus(sg), cpus) {
+		nr_cpus++;
+		rq = cpu_rq(i);
+		busy_sg_load += rq->busy_load;
+	}
+
+    if (nr_cpus > 0) {
+       do_div(busy_sg_load, nr_cpus);
+	   busy_avg = busy_sg_load;
+    }
+
+    return busy_avg;
+}
+#endif
+
 /*
  * Check this_cpu to ensure it is balanced within domain. Attempt to move
  * tasks if there is an imbalance.
@@ -3370,6 +3392,12 @@ redo:
 		schedstat_inc(sd, lb_nobusyg[idle]);
 		goto out_balanced;
 	}
+
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+	/*If the busiest group loadavg is less than 30, just ignore it*/
+    if (get_sg_loadavg(group, cpus) < 30)
+		goto out_balanced;
+#endif
 
 	busiest = find_busiest_queue(sd, group, idle, imbalance, cpus);
 	if (!busiest) {
@@ -3892,22 +3920,22 @@ static void update_max_interval(void)
 }
 
 #ifdef CONFIG_DEBUG_ZONE_SCHED
-static int get_zone_cpu_loadavg(void) {
+static int get_zone_cpu_loadavg(int cpu) {
 	int i, local_group;
 	int busy_sg_load = 0, busy_avg = 0;
 	int nr_cpus = 0;
-	int this_cpu = smp_processor_id();
+
 	struct rq *rq;
 	struct sched_domain *sd;
 	struct sched_group *sg;
-	struct cpumask *cpus = __get_cpu_var(load_balance_tmpmask);
+	struct cpumask *cpus = per_cpu(load_balance_tmpmask, cpu);
 
-	sd = cpu_rq(this_cpu)->sd;
+	sd = cpu_rq(cpu)->sd;
 	sg = sd->groups;
 
 	//find which sched_group this cpu belongs to
 	do {
-		local_group = cpumask_test_cpu(this_cpu, sched_group_cpus(sg));
+		local_group = cpumask_test_cpu(cpu, sched_group_cpus(sg));
 		if (local_group) break;
 		
 		sg = sg->next;
@@ -3970,7 +3998,7 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 
 		if (time_after_eq(jiffies, sd->last_balance + interval)) {
 #ifdef CONFIG_DEBUG_ZONE_SCHED
-			if (get_zone_cpu_loadavg() >= 80) {
+			if (idle != CPU_NEWLY_IDLE && get_zone_cpu_loadavg(cpu) >= 80) {
 				pr_err("cpu(%d) loadavg is high,skip\n", cpu);
 				balance = 0;
 				goto out;

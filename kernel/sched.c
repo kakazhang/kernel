@@ -4167,7 +4167,6 @@ void calc_per_cpu_load(void) {
 		 delta_total = total - ltotal;
 		 
 		 do_div(load, delta_total);
-		 pr_err("cpu(%d) load=%llu\n", smp_processor_id(), load);
 	}
 	
 	pcload->last_system  = system;
