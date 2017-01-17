@@ -3395,7 +3395,7 @@ redo:
 
 #ifdef CONFIG_DEBUG_ZONE_SCHED
 	/*If the busiest group loadavg is less than 30, just ignore it*/
-    if (get_sg_loadavg(group, cpus) < 30)
+    if (idle != CPU_NEWLY_IDLE && get_sg_loadavg(group, cpus) < 30)
 		goto out_balanced;
 #endif
 

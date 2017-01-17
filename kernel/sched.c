@@ -4102,7 +4102,7 @@ void thread_group_times(struct task_struct *p, cputime_t *ut, cputime_t *st)
 
 #ifdef CONFIG_DEBUG_ZONE_SCHED
 static DEFINE_PER_CPU(struct per_cpu_load, per_cload);
-static unsigned long __read_mostly per_cpu_update_interval = HZ/10;
+static unsigned long __read_mostly per_cpu_update_interval = HZ/100;
 
 static void init_pcl(void) {
 	int i;
