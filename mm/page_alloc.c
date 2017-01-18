@@ -2332,7 +2332,6 @@ __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order,
 	gfp_mask &= gfp_allowed_mask;
 
 	lockdep_trace_alloc(gfp_mask);
-
 	might_sleep_if(gfp_mask & __GFP_WAIT);
 
 	if (should_fail_alloc_page(gfp_mask, order))
@@ -5287,7 +5286,8 @@ static void __meminit calculate_zone_inactive_ratio(struct zone *zone)
 	if (gb)
 		ratio = int_sqrt(10 * gb);
 	else
-		ratio = 1;
+		/*FIX ME:set default inactive_ratio  3*/
+		ratio = 3;
 
 	zone->inactive_ratio = ratio;
 }

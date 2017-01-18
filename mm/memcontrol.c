@@ -1115,7 +1115,8 @@ static int calc_inactive_ratio(struct mem_cgroup *memcg, unsigned long *present_
 	if (gb)
 		inactive_ratio = int_sqrt(10 * gb);
 	else
-		inactive_ratio = 1;
+		/*FIXME:set default inactive_ratio  3*/
+		inactive_ratio = 3;
 
 	if (present_pages) {
 		present_pages[0] = inactive;
