@@ -145,8 +145,9 @@ struct scan_control {
 
 /*
  * From 0 .. 100.  Higher means more swappy.
+ * tune vm_swapiness at 30, to reduce backup of file pages
  */
-int vm_swappiness = 60;
+int vm_swappiness = 30;
 long vm_total_pages;	/* The total number of pages which the VM controls */
 
 static LIST_HEAD(shrinker_list);
@@ -1027,6 +1028,7 @@ unsigned long reclaim_pages_from_list(struct list_head *page_list)
 	struct zone* zone_highmem = NULL;
 	
 	struct page *page;
+	struct zone* z;
 	list_for_each_entry(page, page_list, lru)
 		ClearPageActive(page);
 	
@@ -1034,7 +1036,7 @@ unsigned long reclaim_pages_from_list(struct list_head *page_list)
 		page = lru_to_page(page_list);
 		list_del(&page->lru);
 		
-        struct zone* z = page_zone(page);
+        z = page_zone(page);
 		if (!strcmp(z->name, "HighMem")) {
 			list_add(&page->lru, &high_list);
 			zone_highmem = z;
@@ -1640,7 +1642,9 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 	struct page *page;
 	struct zone_reclaim_stat *reclaim_stat = get_reclaim_stat(zone, sc);
 	unsigned long nr_rotated = 0;
-
+	int total = 0;
+	int exec_count = 0;
+	int shared_count = 0;
 	lru_add_drain();
 	spin_lock_irq(&zone->lru_lock);
 	if (scanning_global_lru(sc)) {
@@ -1682,6 +1686,11 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 
 		if (page_referenced(page, 0, sc->mem_cgroup, &vm_flags)) {
 			nr_rotated += hpage_nr_pages(page);
+			total++;
+			if (vm_flags & VM_EXEC)
+				exec_count++;
+			else if (vm_flags & VM_SHARED)
+				shared_count++;
 			/*
 			 * Identify referenced, file-backed active pages and
 			 * give them one more trip around the active list. So
@@ -1697,6 +1706,7 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 			}
 		}
 
+        pr_err("active_list,vm_exec:%d,shared:%d,total:%d\n", exec_count, shared_count, total);
 		ClearPageActive(page);	/* we are de-activating */
 		list_add(&page->lru, &l_inactive);
 	}
@@ -1771,10 +1781,8 @@ static inline int inactive_anon_is_low(struct zone *zone,
 static int inactive_file_is_low_global(struct zone *zone)
 {
 	unsigned long active, inactive;
-
 	active = zone_page_state(zone, NR_ACTIVE_FILE);
 	inactive = zone_page_state(zone, NR_INACTIVE_FILE);
-
 	return (active > inactive);
 }
 
