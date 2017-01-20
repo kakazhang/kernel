@@ -1508,13 +1508,24 @@ shrink_inactive_list(unsigned long nr_to_scan, struct zone *zone,
 	unsigned long nr_taken;
 	unsigned long nr_anon;
 	unsigned long nr_file;
-
+#if 0
 	while (unlikely(too_many_isolated(zone, file, sc))) {
 		congestion_wait(BLK_RW_ASYNC, HZ/10);
 
 		/* We are about to die and free our memory. Return now. */
 		if (fatal_signal_pending(current))
 			return SWAP_CLUSTER_MAX;
+	}
+#endif
+    if (unlikely(too_many_isolated(zone, file, sc))) {
+          wait_event_killable(zone->zone_pgdat->congest_wait,
+                              too_many_isolated(zone, file, sc));
+
+        /* We are about to die and free our memory. Return now. */
+        if (fatal_signal_pending(current)) {
+            nr_reclaimed = SWAP_CLUSTER_MAX;
+            goto out;
+        }
 	}
 
 	set_reclaim_mode(priority, sc, false);
@@ -1576,6 +1587,8 @@ shrink_inactive_list(unsigned long nr_to_scan, struct zone *zone,
 		nr_scanned, nr_reclaimed,
 		priority,
 		trace_shrink_flags(file, sc->reclaim_mode));
+out:
+	wake_up(&zone->zone_pgdat->congest_wait);
 	return nr_reclaimed;
 }
 
