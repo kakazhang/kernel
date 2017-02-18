@@ -2039,6 +2039,17 @@ extern unsigned int sysctl_sched_min_granularity;
 extern unsigned int sysctl_sched_wakeup_granularity;
 extern unsigned int sysctl_sched_child_runs_first;
 
+/*
+* Operation zone load balanace 
+* sysctl_balance_weight_enable: enable this balance policy
+* sysctl_balance_weight_punish_time: update intervals
+* sysctl_balance_weight_punish_score: warm zone step score
+*/
+extern unsigned int sysctl_balance_weight_enable;
+extern unsigned int sysctl_balance_weight_time;
+extern unsigned int sysctl_balance_idle_utility;
+extern unsigned int sysctl_balance_busy_utility;
+
 enum sched_tunable_scaling {
 	SCHED_TUNABLESCALING_NONE,
 	SCHED_TUNABLESCALING_LOG,

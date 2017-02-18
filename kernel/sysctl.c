@@ -280,6 +280,27 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
+	{
+        .procname   = "balance_weight_enable",
+		.data       = &sysctl_balance_weight_enable,
+		.maxlen     = sizeof(unsigned int),
+		.mode       = 0644,
+		.proc_handler = proc_dointvec,
+	},
+	{
+		.procname	= "balance_busy_utility",
+		.data		= &sysctl_balance_busy_utility,
+		.maxlen 	= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler = proc_dointvec,
+    },
+    {
+		.procname	= "balance_idle_utility",
+		.data		= &sysctl_balance_idle_utility,
+		.maxlen 	= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler = proc_dointvec,
+	},
 #ifdef CONFIG_SCHED_DEBUG
 	{
 		.procname	= "sched_min_granularity_ns",

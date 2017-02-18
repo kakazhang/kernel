@@ -26,6 +26,15 @@
 #include <asm/div64.h>
 
 /*
+* default sysctl_balance_weight_enable is disabled
+* sysctl_balance_weight_time is set to 1s
+* sysctl_balance_weight_score punish or prize score is 5
+*/
+unsigned int sysctl_balance_weight_enable = 1;
+unsigned int sysctl_balance_weight_time = 1000;
+unsigned int sysctl_balance_idle_utility = 30;
+unsigned int sysctl_balance_busy_utility = 80;
+/*
  * Targeted preemption latency for CPU-bound tasks:
  * (default: 7ms * (1 + ilog(ncpus)), units: nanoseconds)
  *
@@ -3360,6 +3369,27 @@ static int get_sg_loadavg(struct sched_group *sg, struct cpumask* cpus) {
 
     return busy_avg;
 }
+
+static int beyond_load_balance_threshold(int this_cpu, struct sched_domain *sd,
+            struct cpumask *cpus, int local) {
+     int beyond = 0;
+     struct sched_group* sg = sd->groups;
+
+     do {
+         if (cpumask_test_cpu(this_cpu, sched_group_cpus(sg)))
+		 	break;
+         sg = sg->next;
+	 } while (sg != sd->groups);
+
+     if (sg != NULL) {
+         if (local)
+		 	beyond = get_sg_loadavg(sg, cpus) >= sysctl_balance_busy_utility;
+		 else
+		 	beyond = get_sg_loadavg(sg, cpus)<= sysctl_balance_idle_utility;
+     }
+
+     return beyond;
+}
 #endif
 
 /*
@@ -3380,6 +3410,11 @@ static int load_balance(int this_cpu, struct rq *this_rq,
 	cpumask_copy(cpus, cpu_active_mask);
 
 	schedstat_inc(sd, lb_count[idle]);
+#ifdef CONFIG_DEBUG_ZONE_SCHED
+    if (sysctl_balance_weight_enable
+		  && beyond_load_balance_threshold(this_cpu,sd, cpus, 1))
+        goto out_balanced;
+#endif
 
 redo:
 	group = find_busiest_group(sd, this_cpu, &imbalance, idle,
@@ -3394,9 +3429,9 @@ redo:
 	}
 
 #ifdef CONFIG_DEBUG_ZONE_SCHED
-	/*If the busiest group loadavg is less than 30, just ignore it*/
-    if (idle != CPU_NEWLY_IDLE && get_sg_loadavg(group, cpus) < 30)
-		goto out_balanced;
+    if (sysctl_balance_weight_enable
+	      && beyond_load_balance_threshold(this_cpu,sd, cpus, 0))
+          goto out_balanced;
 #endif
 
 	busiest = find_busiest_queue(sd, group, idle, imbalance, cpus);
@@ -3919,44 +3954,6 @@ static void update_max_interval(void)
 	max_load_balance_interval = HZ*num_online_cpus()/10;
 }
 
-#ifdef CONFIG_DEBUG_ZONE_SCHED
-static int get_zone_cpu_loadavg(int cpu) {
-	int i, local_group;
-	int busy_sg_load = 0, busy_avg = 0;
-	int nr_cpus = 0;
-
-	struct rq *rq;
-	struct sched_domain *sd;
-	struct sched_group *sg;
-	struct cpumask *cpus = per_cpu(load_balance_tmpmask, cpu);
-
-	sd = cpu_rq(cpu)->sd;
-	sg = sd->groups;
-
-	//find which sched_group this cpu belongs to
-	do {
-		local_group = cpumask_test_cpu(cpu, sched_group_cpus(sg));
-		if (local_group) break;
-		
-		sg = sg->next;
-	} while (sg != sd->groups);
-
-	//for each cpu in this group, get total busy load
-	for_each_cpu_and(i, sched_group_cpus(sg), cpus) {
-		nr_cpus++;
-		rq = cpu_rq(i);
-		busy_sg_load += rq->busy_load;
-	}
-	
-    if (nr_cpus > 0) {
-       do_div(busy_sg_load, nr_cpus);
-	   busy_avg = busy_sg_load;
-    }
-	
-	return busy_avg;
-}
-#endif
-
 /*
  * It checks each scheduling domain to see if it is due to be balanced,
  * and initiates a balancing operation if so.
@@ -3997,14 +3994,6 @@ static void rebalance_domains(int cpu, enum cpu_idle_type idle)
 		}
 
 		if (time_after_eq(jiffies, sd->last_balance + interval)) {
-#ifdef CONFIG_DEBUG_ZONE_SCHED
-			if (idle != CPU_NEWLY_IDLE && get_zone_cpu_loadavg(cpu) >= 80) {
-				pr_err("cpu(%d) loadavg is high,skip\n", cpu);
-				balance = 0;
-				goto out;
-			}
-#endif
-
 			if (load_balance(cpu, rq, sd, idle, &balance)) {
 				/*
 				 * We've pulled tasks over so either we're no
