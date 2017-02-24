@@ -34,6 +34,11 @@ unsigned int sysctl_balance_weight_enable = 1;
 unsigned int sysctl_balance_weight_time = 1000;
 unsigned int sysctl_balance_idle_utility = 30;
 unsigned int sysctl_balance_busy_utility = 80;
+unsigned int balance_idle_min = 0;
+unsigned int balance_idle_max = 30;
+unsigned int balance_busy_min = 80;
+unsigned int balance_busy_max = 100;
+
 /*
  * Targeted preemption latency for CPU-bound tasks:
  * (default: 7ms * (1 + ilog(ncpus)), units: nanoseconds)
@@ -1689,6 +1694,14 @@ select_task_rq_fair(struct task_struct *p, int sd_flag, int wake_flags)
 	int want_sd = 1;
 	int sync = wake_flags & WF_SYNC;
 
+    //check if task is hot
+#ifdef CONFIG_SMP
+    struct rq *rq = cpu_rq(prev_cpu);
+    if (cpu_online(prev_cpu)) {
+        if (task_hot(p, rq->clock_task, rq->sd))
+            return prev_cpu;
+    }
+#endif
 	if (sd_flag & SD_BALANCE_WAKE) {
 		if (cpumask_test_cpu(cpu, &p->cpus_allowed))
 			want_affine = 1;

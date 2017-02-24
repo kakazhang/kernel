@@ -292,14 +292,18 @@ static struct ctl_table kern_table[] = {
 		.data		= &sysctl_balance_busy_utility,
 		.maxlen 	= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler = proc_dointvec,
+		.proc_handler = proc_dointvec_minmax,
+		.extra1 	= &balance_busy_min,
+		.extra2 	= &balance_busy_max,
     },
     {
 		.procname	= "balance_idle_utility",
 		.data		= &sysctl_balance_idle_utility,
 		.maxlen 	= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler = proc_dointvec,
+		.proc_handler = proc_dointvec_minmax,
+        .extra1 	= &balance_idle_min,
+        .extra2 	= &balance_idle_max,
 	},
 #ifdef CONFIG_SCHED_DEBUG
 	{
