@@ -1079,6 +1079,7 @@ static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
 	int oom_adjust;
 	unsigned long flags;
 	int err;
+    int prev_oom_adj;
 
 	memset(buffer, 0, sizeof(buffer));
 	if (count > sizeof(buffer) - 1)
@@ -1133,7 +1134,18 @@ static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
 	printk_once(KERN_WARNING "%s (%d): /proc/%d/oom_adj is deprecated, please use /proc/%d/oom_score_adj instead.\n",
 		  current->comm, task_pid_nr(current), task_pid_nr(task),
 		  task_pid_nr(task));
+	prev_oom_adj = task->signal->oom_adj;
 	task->signal->oom_adj = oom_adjust;
+
+    /*
+           * for android's application :oom_adj = 0 means foreground process
+           * previous oom_adj > 0 && oom_adjust == 0  means current process becomes foreground
+           */
+	if (prev_oom_adj > 0 && oom_adjust == 0)
+         set_user_nice(task, -1);
+    else if (prev_oom_adj == 0 && oom_adjust > 0)
+         set_user_nice(task, 0);
+
 	/*
 	 * Scale /proc/pid/oom_score_adj appropriately ensuring that a maximum
 	 * value is always attainable.
