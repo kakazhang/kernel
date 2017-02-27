@@ -1141,7 +1141,7 @@ static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
            * for android's application :oom_adj = 0 means foreground process
            * previous oom_adj > 0 && oom_adjust == 0  means current process becomes foreground
            */
-	if (prev_oom_adj > 0 && oom_adjust == 0)
+	if (oom_adjust == 0)
          set_user_nice(task, -1);
     else if (prev_oom_adj == 0 && oom_adjust > 0)
          set_user_nice(task, 0);
