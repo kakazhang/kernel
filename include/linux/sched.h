@@ -2049,6 +2049,10 @@ extern unsigned int sysctl_balance_weight_enable;
 extern unsigned int sysctl_balance_weight_time;
 extern unsigned int sysctl_balance_idle_utility;
 extern unsigned int sysctl_balance_busy_utility;
+extern unsigned int balance_idle_min;
+extern unsigned int balance_idle_max;
+extern unsigned int balance_busy_min;
+extern unsigned int balance_busy_max;
 
 enum sched_tunable_scaling {
 	SCHED_TUNABLESCALING_NONE,
