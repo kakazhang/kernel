@@ -22,6 +22,7 @@
 #include <linux/compaction.h>
 #include <linux/workqueue.h>
 #include <linux/swap.h>
+#include <asm/div64.h>
 
 #ifdef CONFIG_VM_EVENT_COUNTERS
 DEFINE_PER_CPU(struct vm_event_state, vm_event_states) = {{0}};
@@ -967,6 +968,109 @@ static const struct file_operations pagetypeinfo_file_ops = {
 	.release	= seq_release,
 };
 
+//fragmentation level information
+static void fraglevelinfo_showfree_print(struct seq_file *m,
+					pg_data_t *pgdat, struct zone *zone)
+{
+	int order, inner, mtype;
+    unsigned long other_frag[MAX_ORDER];
+    unsigned long pages[MIGRATE_TYPES][MAX_ORDER];
+	unsigned long freepages[MAX_ORDER];
+
+    seq_printf(m, "zone:%8s\n", zone->name);
+    seq_printf(m, "%s  %16s  %16s  %16s\n",
+        "Order",
+        "FreePages",
+        migratetype_names[MIGRATE_MOVABLE],
+        migratetype_names[MIGRATE_RECLAIMABLE]);
+
+    for (order = 0; order < MAX_ORDER; order++) {
+        freepages[order] = 0;
+        other_frag[order] = 0;
+    }
+
+    for (order = 0; order < MAX_ORDER; ++order) {
+		for (mtype = 0; mtype < MIGRATE_TYPES; mtype++) {
+            unsigned long freecount = 0;
+			struct free_area *area;
+			struct list_head *curr;
+
+			area = &(zone->free_area[order]);
+
+			list_for_each(curr, &area->free_list[mtype])
+				freecount++;
+
+            pages[mtype][order] = freecount;
+            freepages[order] += freecount;
+		}
+	}
+
+    unsigned long totalfreepages = global_page_state(NR_FREE_PAGES);
+    for (order = 0; order < MAX_ORDER; order++) {
+		unsigned long fragfactor = 0;
+        for (inner = order; inner < MAX_ORDER; inner++) {
+            fragfactor += (1 << inner) * freepages[inner];
+		}
+
+        other_frag[order] = (totalfreepages - fragfactor) * 100;
+        do_div(other_frag[order], totalfreepages);
+        seq_printf(m, "%2d  %16lu  %16lu  %16lu  %2d %%\n", order,
+            freepages[order],
+            pages[MIGRATE_MOVABLE][order],
+            pages[MIGRATE_RECLAIMABLE][order],
+            other_frag[order]);
+    }
+}
+
+static int fraglevelinfo_showfree(struct seq_file *m, void *arg) {
+	int order;
+	pg_data_t *pgdat = (pg_data_t *)arg;
+
+	walk_zones_in_node(m, pgdat, fraglevelinfo_showfree_print);
+
+	return 0;
+}
+
+/*
+ * This prints out statistics in relation to grouping pages by mobility.
+ * It is expensive to collect so do not constantly read the file.
+ */
+static int fraglevelinfo_show(struct seq_file *m, void *arg)
+{
+	pg_data_t *pgdat = (pg_data_t *)arg;
+
+	/* check memoryless node */
+	if (!node_state(pgdat->node_id, N_HIGH_MEMORY))
+		return 0;
+
+	seq_printf(m, "Node: %d\n", pgdat->node_id);
+
+	seq_putc(m, '\n');
+	fraglevelinfo_showfree(m, pgdat);
+	//pagetypeinfo_showblockcount(m, pgdat);
+
+	return 0;
+}
+
+static const struct seq_operations fraglevelinfo_op = {
+	.start	= frag_start,
+	.next	= frag_next,
+	.stop	= frag_stop,
+	.show	= fraglevelinfo_show,
+};
+
+static int fraglevelinfo_open(struct inode *inode, struct file *file)
+{
+	return seq_open(file, &fraglevelinfo_op);
+}
+
+static const struct file_operations fraglevelinfo_file_ops = {
+	.open		= fraglevelinfo_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= seq_release,
+};
+
 static void zoneinfo_show_print(struct seq_file *m, pg_data_t *pgdat,
 							struct zone *zone)
 {
@@ -1260,6 +1364,8 @@ static int __init setup_vmstat(void)
 	proc_create("pagetypeinfo", S_IRUGO, NULL, &pagetypeinfo_file_ops);
 	proc_create("vmstat", S_IRUGO, NULL, &proc_vmstat_file_operations);
 	proc_create("zoneinfo", S_IRUGO, NULL, &proc_zoneinfo_file_operations);
+	//fragmetation level inforamtion
+    proc_create("fraglevelinfo", S_IRUGO, NULL, &fraglevelinfo_file_ops);
 #endif
 #ifdef CONFIG_HAS_EARLYSUSPEND
    vmstat_suspend.suspend = vmstat_early_suspend;
