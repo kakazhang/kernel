@@ -1655,9 +1655,7 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 	struct page *page;
 	struct zone_reclaim_stat *reclaim_stat = get_reclaim_stat(zone, sc);
 	unsigned long nr_rotated = 0;
-	int total = 0;
-	int exec_count = 0;
-	int shared_count = 0;
+
 	lru_add_drain();
 	spin_lock_irq(&zone->lru_lock);
 	if (scanning_global_lru(sc)) {
@@ -1699,11 +1697,6 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 
 		if (page_referenced(page, 0, sc->mem_cgroup, &vm_flags)) {
 			nr_rotated += hpage_nr_pages(page);
-			total++;
-			if (vm_flags & VM_EXEC)
-				exec_count++;
-			else if (vm_flags & VM_SHARED)
-				shared_count++;
 			/*
 			 * Identify referenced, file-backed active pages and
 			 * give them one more trip around the active list. So
@@ -1719,7 +1712,6 @@ static void shrink_active_list(unsigned long nr_pages, struct zone *zone,
 			}
 		}
 
-        pr_err("active_list,vm_exec:%d,shared:%d,total:%d\n", exec_count, shared_count, total);
 		ClearPageActive(page);	/* we are de-activating */
 		list_add(&page->lru, &l_inactive);
 	}

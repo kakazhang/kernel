@@ -1305,40 +1305,34 @@ static struct notifier_block __cpuinitdata vmstat_notifier =
 #endif
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
+#define LOW_FREE_PAGES 12 * 1024
 static struct work_struct worker;
 static struct early_suspend vmstat_suspend;
-volatile int isClaiming = 0;
+volatile unsigned long reclaim_timeout;
+
 void do_reclaim(struct work_struct *work) {
 	pr_err("do reclaim\n");
-	//gfp_t masks[2] = {GFP_USER, GFP_KERNEL};
-	int od;
-	struct list_head *curr;
-	struct free_area *area;
-	
-	pg_data_t *pd = first_online_pgdat();
-	struct zone* z = &(pd->node_zones[ZONE_NORMAL]);
+    /*free some pages*/
+	struct zone* zone;
+    int nid;
 
-	for (od = 0; od < MAX_ORDER; od++) {
-		unsigned long free_count = 0;
-		area = &(z->free_area[od]);
-
-		list_for_each(curr, &area->free_list[ZONE_NORMAL])
-			free_count++;
-
-		if (free_count > 0) {
-			zone_reclaim(z, GFP_USER, od);
-			zone_reclaim(z, GFP_KERNEL, od);
-		}
-	}
-
-    isClaiming = 0;
+    for_each_online_node(nid) {
+        (void)first_zones_zonelist(node_zonelist(nid, GFP_KERNEL),
+						gfp_zone(GFP_KERNEL), NULL,
+                        &zone);
+         if (zone)
+             try_to_free_pages(node_zonelist(nid, GFP_KERNEL), 0,
+                GFP_KERNEL, NULL);
+    }
+	reclaim_timeout = reclaim_timeout + HZ;
 }
 
 void vmstat_early_suspend(struct early_suspend *h)
 {
     pr_err("vmstat early suspend\n");
-	if (!isClaiming) {
-        isClaiming = 1;
+	unsigned long totalfreepages = global_page_state(NR_FREE_PAGES);
+	int lowmem = totalfreepages <= LOW_FREE_PAGES;
+	if (lowmem && time_after(jiffies, reclaim_timeout)) {
 		schedule_work(&worker);
 	}
 }

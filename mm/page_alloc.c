@@ -5246,9 +5246,16 @@ void setup_per_zone_wmarks(void)
 			 */
 			zone->watermark[WMARK_MIN] = tmp;
 		}
-
+#if 0
 		zone->watermark[WMARK_LOW]  = min_wmark_pages(zone) + (tmp >> 2);
 		zone->watermark[WMARK_HIGH] = min_wmark_pages(zone) + (tmp >> 1);
+#else
+        /*On our device, total memory is less than 1G, serveral memory-based process backgroud will
+                       cause troublesome pagefault, tune this watermark a little higher
+                    */
+        zone->watermark[WMARK_LOW]  = min_wmark_pages(zone) + (tmp >> 1);
+        zone->watermark[WMARK_HIGH] = min_wmark_pages(zone) + tmp;
+#endif
 		setup_zone_migrate_reserve(zone);
 		spin_unlock_irqrestore(&zone->lock, flags);
 	}
