@@ -99,7 +99,7 @@ static unsigned long go_maxspeed_load;
 static unsigned long go_hispeed_load;
 
 /*Go to minspeed_freq when CPU load at or below this value*/
-#define DEFAULT_GO_MINSPEED_LOAD 2
+#define DEFAULT_GO_MINSPEED_LOAD 0
 static unsigned long go_minspeed_load;
 
 /* Base of exponential raise to max speed; if 0 - jump to maximum */
