@@ -2973,7 +2973,7 @@ unsigned long zone_reclaimable_pages(struct zone *zone)
 	return nr;
 }
 
-#ifdef CONFIG_HIBERNATION
+//#ifdef CONFIG_HIBERNATION
 /*
  * Try to free `nr_to_reclaim' of memory, system-wide, and return the number of
  * freed pages.
@@ -3014,7 +3014,101 @@ unsigned long shrink_all_memory(unsigned long nr_to_reclaim)
 
 	return nr_reclaimed;
 }
-#endif /* CONFIG_HIBERNATION */
+//#endif /* CONFIG_HIBERNATION */
+
+/**
+* get average fragmetation ratio of pgdat_t
+*/
+int get_fragmentation_avg(struct zone* zone) {
+	int order, inner, mtype;
+    unsigned long avg_total = 0;
+    unsigned long other_frag[MAX_ORDER];
+	unsigned long freepages[MAX_ORDER];
+
+    for (order = 0; order < MAX_ORDER; order++) {
+        freepages[order] = 0;
+        other_frag[order] = 0;
+    }
+
+    for (mtype = 0; mtype < MIGRATE_TYPES; mtype++) {
+		for (order = 0; order < MAX_ORDER; ++order) {
+            unsigned long freecount = 0;
+			struct free_area *area;
+			struct list_head *curr;
+
+			area = &(zone->free_area[order]);
+
+			list_for_each(curr, &area->free_list[mtype])
+				freecount++;
+
+            freepages[order] += freecount;
+		}
+	}
+
+    unsigned long totalfreepages = global_page_state(NR_FREE_PAGES);
+    for (order = 0; order < MAX_ORDER; order++) {
+		unsigned long fragfactor = 0;
+        for (inner = order; inner < MAX_ORDER; inner++) {
+            fragfactor += (1 << inner) * freepages[inner];
+		}
+
+        other_frag[order] = (totalfreepages - fragfactor) * 100;
+        do_div(other_frag[order], totalfreepages);
+        avg_total += other_frag[order];
+    }
+
+    do_div(avg_total, MAX_ORDER);
+    return avg_total;
+}
+
+static unsigned long get_avg_fragment_zones(pg_data_t* pgdat) {
+    struct zone *zone;
+    struct zone *node_zones = pgdat->node_zones;
+    unsigned long flags;
+    unsigned long avg_frags= 0;
+    int count = 0;
+
+    for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
+        if (!populated_zone(zone))
+            continue;
+        count++;
+        spin_lock_irqsave(&zone->lock, flags);
+        avg_frags += get_fragmentation_avg(zone);
+        spin_unlock_irqrestore(&zone->lock, flags);
+    }
+
+    if (likely(count > 0))
+        do_div(avg_frags, count);
+
+    return avg_frags;
+}
+
+static unsigned long get_avg_fragment_pgdat(void) {
+    unsigned long avg_frags = 0;
+    pg_data_t *pgdat = NULL;
+    int count = 0;
+
+	for (pgdat = first_online_pgdat();
+         pgdat;
+         pgdat = next_online_pgdat(pgdat)) {
+         avg_frags += get_avg_fragment_zones(pgdat);
+         count++;
+   }
+
+   if (count > 0)
+       do_div(avg_frags, count);
+   return avg_frags;
+}
+
+int try_to_reset_memory_state(void) {
+    if (get_avg_fragment_pgdat() > 90) {
+        pr_err("reset memory state\n");
+        unsigned long totalfreepages = global_page_state(NR_FREE_PAGES);
+        shrink_all_memory(totalfreepages);
+        drop_all_caches();
+    }
+    return 0;
+}
 
 /* It's optimal to keep kswapds on the same CPUs as their memory, but
    not required for correctness.  So if the last cpu in a node goes

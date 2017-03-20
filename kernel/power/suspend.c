@@ -288,6 +288,11 @@ int enter_state(suspend_state_t state)
 	sys_sync();
 	printk("done.\n");
 
+    if (state > PM_SUSPEND_ON) {
+        printk(KERN_ERR "try to reset memory state\n");
+        try_to_reset_memory_state();
+	}
+
 	pr_debug("PM: Preparing system for %s sleep\n", pm_states[state]);
 	error = suspend_prepare();
 	if (error)
