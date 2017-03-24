@@ -3066,19 +3066,11 @@ static unsigned long get_avg_fragment_zones(pg_data_t* pgdat) {
     struct zone *node_zones = pgdat->node_zones;
     unsigned long flags;
     unsigned long avg_frags= 0;
-    int count = 0;
 
-    for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
-        if (!populated_zone(zone))
-            continue;
-        count++;
-        spin_lock_irqsave(&zone->lock, flags);
-        avg_frags += get_fragmentation_avg(zone);
-        spin_unlock_irqrestore(&zone->lock, flags);
-    }
-
-    if (likely(count > 0))
-        do_div(avg_frags, count);
+    zone = node_zones + ZONE_NORMAL;
+    spin_lock_irqsave(&zone->lock, flags);
+    avg_frags = get_fragmentation_avg(zone);
+    spin_unlock_irqrestore(&zone->lock, flags);
 
     return avg_frags;
 }
