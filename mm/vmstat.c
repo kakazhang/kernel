@@ -1312,17 +1312,19 @@ volatile unsigned long reclaim_timeout;
 
 void do_reclaim(struct work_struct *work) {
 	pr_err("do reclaim\n");
-    /*free some pages*/
-	struct zone* zone;
-    int nid;
+	if (!try_to_reset_memory_state()) {
+        /*free some pages*/
+	    struct zone* zone;
+        int nid;
 
-    for_each_online_node(nid) {
-        (void)first_zones_zonelist(node_zonelist(nid, GFP_KERNEL),
+        for_each_online_node(nid) {
+            (void)first_zones_zonelist(node_zonelist(nid, GFP_KERNEL),
 						gfp_zone(GFP_KERNEL), NULL,
                         &zone);
-         if (zone)
-             try_to_free_pages(node_zonelist(nid, GFP_KERNEL), 0,
-                GFP_KERNEL, NULL);
+             if (zone)
+                 try_to_free_pages(node_zonelist(nid, GFP_KERNEL), 0,
+                        GFP_KERNEL, NULL);
+        }
     }
 	reclaim_timeout = reclaim_timeout + HZ;
 }

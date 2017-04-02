@@ -3093,13 +3093,15 @@ static unsigned long get_avg_fragment_pgdat(void) {
 }
 
 int try_to_reset_memory_state(void) {
+	int reset = 0;
     if (get_avg_fragment_pgdat() > 90) {
         pr_err("reset memory state\n");
+		reset = 1;
         unsigned long totalfreepages = global_page_state(NR_FREE_PAGES);
         shrink_all_memory(totalfreepages);
         drop_all_caches();
     }
-    return 0;
+    return reset;
 }
 
 /* It's optimal to keep kswapds on the same CPUs as their memory, but
