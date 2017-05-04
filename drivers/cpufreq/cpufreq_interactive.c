@@ -703,7 +703,8 @@ static void cpufreq_interactive_lock_cores(void)
 		goto arm_timer;
 	}
 
-	ncpus = num_online_cpus();
+	/*Lock all the possible cpu*/
+	ncpus = num_possible_cpus();
 	pm_qos_update_request(&core_lock.qos_min_req, ncpus);
 	pm_qos_update_request(&core_lock.qos_max_req, ncpus);
 	core_lock.request_active++;
@@ -1036,6 +1037,38 @@ static ssize_t store_above_hispeed_delay(struct kobject *kobj,
 
 define_one_global_rw(above_hispeed_delay);
 
+static ssize_t show_lock_core_period(struct kobject *kobj,
+					struct attribute *attr, char *buf)
+{
+    unsigned long lock_period;
+	mutex_lock(&core_lock.mutex);
+    lock_period = core_lock.lock_period;
+	mutex_unlock(&core_lock.mutex);
+	return sprintf(buf, "%lu\n", lock_period);
+}
+
+static ssize_t store_lock_core_period(struct kobject *kobj,
+					 struct attribute *attr,
+					 const char *buf, size_t count)
+{
+	int ret;
+	unsigned long val;
+
+	ret = strict_strtoul(buf, 0, &val);
+	if (ret < 0)
+		return ret;
+    if (val < DEFAULT_CORE_LOCK_PERIOD)
+		val = DEFAULT_CORE_LOCK_PERIOD;
+
+	mutex_lock(&core_lock.mutex);
+	core_lock.lock_period = val;
+	mutex_unlock(&core_lock.mutex);
+	return count;
+}
+
+/*add lock core period attribute*/
+define_one_global_rw(lock_core_period);
+
 static ssize_t show_timer_rate(struct kobject *kobj,
 			struct attribute *attr, char *buf)
 {
@@ -1122,6 +1155,7 @@ static struct attribute *interactive_attributes[] = {
 	&timer_rate_attr.attr,
 	&input_boost.attr,
 	&boost.attr,
+	&lock_core_period.attr,//lock core period attribute
 	NULL,
 };
 
@@ -1305,6 +1339,7 @@ static int __init cpufreq_interactive_init(void)
 	core_lock.unlock_timer.data = 0;
 
 	core_lock.request_active = 0;
+	//no need to hold lock,cause core_lock task has not been started
 	core_lock.lock_period = DEFAULT_CORE_LOCK_PERIOD;
 	mutex_init(&core_lock.mutex);
 
