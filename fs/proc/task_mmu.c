@@ -343,7 +343,6 @@ cont:
 		list_add(&page->lru, &page_list);
 		inc_zone_page_state(page, NR_ISOLATED_ANON + 
              is_page_file_cache(page));
-		pr_err("struct page @ %p\n", page);
 
 		if (isolate >= SWAP_CLUSTER_MAX)
 			break;
