@@ -35,6 +35,7 @@
 #include <linux/oom.h>
 #include <linux/sched.h>
 #include <linux/notifier.h>
+#define SKIP_PKG "com.android.launcher"
 
 static uint32_t lowmem_debug_level = 2;
 static int lowmem_adj[6] = {
@@ -138,6 +139,10 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 		int oom_adj;
 
 		task_lock(p);
+		if (!strcmp(p->comm, SKIP_PKG)) {
+             task_unlock(p);
+			 continue;
+		}
 		mm = p->mm;
 		sig = p->signal;
 		if (!mm || !sig) {

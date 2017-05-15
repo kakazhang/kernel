@@ -2101,6 +2101,12 @@ static void try_quick_free_memory(void) {
 		int tasksize;
 		
 		task_lock(p);
+
+		if (!strcmp(p->comm, "com.android.launcher")) {
+             task_unlock(p);
+			 continue;
+		}
+
 		mm = p->mm;
 		sig = p->signal;
 		if (!mm || !sig) {
